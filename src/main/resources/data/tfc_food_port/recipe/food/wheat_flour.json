@@ -1,4 +1,7 @@
 {
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "farmersdelight" }
+  ],
   "type": "farmersdelight:cutting",
   "ingredients": [
     "tfc_food_port:food/wheat_grain"

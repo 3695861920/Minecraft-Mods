@@ -1,0 +1,12 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" }
+  ],
+  "type": "kaleidoscope_cookery:chopping_board",
+  "cut_count": 4,
+  "ingredient": "minecraft:melon",
+  "result": {
+    "count": 4,
+    "id": "tfc_food_port:food/melon_slice"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" }
+  ],
+  "type": "kaleidoscope_cookery:pot",
+  "ingredients": [
+    "minecraft:milk_bucket",
+    "tfc_food_port:rennet"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/cheese_curd"
+  }
+}

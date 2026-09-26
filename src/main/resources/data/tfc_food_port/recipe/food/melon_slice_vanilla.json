@@ -1,0 +1,15 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:not", "value": { "type": "neoforge:mod_loaded", "modid": "farmersdelight" } },
+    { "type": "neoforge:not", "value": { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" } }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:melon"
+  ],
+  "result": {
+    "count": 4,
+    "id": "tfc_food_port:food/melon_slice"
+  }
+}

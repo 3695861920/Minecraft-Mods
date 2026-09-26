@@ -133,6 +133,17 @@ dependencies {
         localRuntime 'mezz.jei:jei-26.1.2-neoforge:29.6.2.38'
     }
 
+    // Kaleidoscope Cookery is the port's other supported cooking machine mod. It is added the same way and for the
+    // same reason, and its presence here is what lets the game tests prove that the recipes generated for its
+    // chopping board, millstone and pot actually parse - a wrong field name would otherwise only show up for a
+    // player who had it installed.
+    def kaleidoscopeJar = file('kaleidoscope_cookery_mc26.1.2_1.3.0.jar')
+    if (kaleidoscopeJar.exists()) {
+        localRuntime files(kaleidoscopeJar)
+    } else {
+        logger.lifecycle("Kaleidoscope Cookery jar not found, so its recipes cannot be exercised in game tests.")
+    }
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

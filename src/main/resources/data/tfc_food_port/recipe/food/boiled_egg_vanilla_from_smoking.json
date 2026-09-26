@@ -1,0 +1,15 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:not", "value": { "type": "neoforge:mod_loaded", "modid": "farmersdelight" } },
+    { "type": "neoforge:not", "value": { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" } }
+  ],
+  "type": "minecraft:smoking",
+  "category": "food",
+  "cookingtime": 100,
+  "experience": 0.35,
+  "ingredient": "minecraft:egg",
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/boiled_egg"
+  }
+}

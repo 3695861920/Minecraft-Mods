@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" }
+  ],
+  "type": "kaleidoscope_cookery:pot",
+  "carrier": "minecraft:bowl",
+  "ingredients": [
+    "#c:foods/fruit",
+    "#c:foods/fruit",
+    "minecraft:sugar",
+    "minecraft:water_bucket"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/fruit_soup"
+  }
+}

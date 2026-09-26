@@ -42,6 +42,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import net.minecraft.world.level.GameType;
@@ -94,6 +95,7 @@ public final class TFCFoodPortGameTests
     private static final ResourceKey<Consumer<GameTestHelper>> MOONCAKES_GIVE_A_BUFF = functionKey("mooncakes_give_a_buff");
     private static final ResourceKey<Consumer<GameTestHelper>> MOONCAKES_BAKE_FROM_RAW = functionKey("mooncakes_bake_from_raw");
     private static final ResourceKey<Consumer<GameTestHelper>> SOUP_IS_NOT_A_CONFUSED_JAM = functionKey("soup_is_not_a_confused_jam");
+    private static final ResourceKey<Consumer<GameTestHelper>> RECIPES_SWITCH_WITH_LOADED_MODS = functionKey("recipes_switch_with_loaded_mods");
 
     private TFCFoodPortGameTests() {}
 
@@ -136,6 +138,8 @@ public final class TFCFoodPortGameTests
             () -> (Consumer<GameTestHelper>) TFCFoodPortGameTests::mooncakesBakeFromRaw);
         TEST_FUNCTIONS.register(SOUP_IS_NOT_A_CONFUSED_JAM.identifier().getPath(),
             () -> (Consumer<GameTestHelper>) TFCFoodPortGameTests::soupIsNotAConfusedJam);
+        TEST_FUNCTIONS.register(RECIPES_SWITCH_WITH_LOADED_MODS.identifier().getPath(),
+            () -> (Consumer<GameTestHelper>) TFCFoodPortGameTests::recipesSwitchWithLoadedMods);
         TEST_FUNCTIONS.register(modEventBus);
         modEventBus.addListener(TFCFoodPortGameTests::registerTests);
     }
@@ -167,6 +171,7 @@ public final class TFCFoodPortGameTests
         registerTest(event, environment, "mooncakes_give_a_buff", MOONCAKES_GIVE_A_BUFF);
         registerTest(event, environment, "mooncakes_bake_from_raw", MOONCAKES_BAKE_FROM_RAW);
         registerTest(event, environment, "soup_is_not_a_confused_jam", SOUP_IS_NOT_A_CONFUSED_JAM);
+        registerTest(event, environment, "recipes_switch_with_loaded_mods", RECIPES_SWITCH_WITH_LOADED_MODS);
     }
 
     private static void registerTest(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment,
@@ -902,6 +907,15 @@ public final class TFCFoodPortGameTests
     @SuppressWarnings({"unchecked", "deprecation"})
     private static void soupIsNotAConfusedJam(GameTestHelper helper)
     {
+        // This test asks the cooking pot a question, so it can only run where the cooking pot exists. Farmer's
+        // Delight is an optional dependency now, so an absent pot is a valid configuration rather than a failure -
+        // recipes_switch_with_loaded_mods covers what should happen in that case.
+        if (!ModList.get().isLoaded("farmersdelight"))
+        {
+            helper.succeed();
+            return;
+        }
+
         final ServerLevel level = helper.getLevel();
         final RecipeManager recipes = (RecipeManager) level.recipeAccess();
 
@@ -966,6 +980,76 @@ public final class TFCFoodPortGameTests
         final Optional<RecipeHolder<?>> found =
             (Optional<RecipeHolder<?>>) (Optional<?>) recipes.getRecipeFor((RecipeType) type, wrapper, level);
         return found.map(holder -> holder.id().identifier().toString()).orElse("");
+    }
+
+    /**
+     * The recipes must actually change with the installed mods, and this proves it happened at load time.
+     *
+     * Every processing step that would need a cooking machine exists in three files: one using Farmer's Delight's
+     * machines, one using Kaleidoscope Cookery's, and one using only vanilla blocks. Each carries a
+     * {@code neoforge:conditions} block, which NeoForge evaluates WHILE THE DATAPACK LOADS - so the recipes that are
+     * not applicable should not merely be hidden, they should not be in the recipe manager at all.
+     *
+     * That distinction is what this test checks, because it is the difference between the feature working and the
+     * feature appearing to work: a condition that silently failed to parse would leave all three variants loaded,
+     * and the player would find three ways to make a jam with no idea which mods were supposed to matter. Reading
+     * the loaded recipe ids back from the manager is the only way to tell those two situations apart.
+     *
+     * The expectations are derived from which mods are actually present, so this holds in any of the four
+     * combinations: neither mod, only Farmer's Delight, only Kaleidoscope Cookery, or both.
+     */
+    private static void recipesSwitchWithLoadedMods(GameTestHelper helper)
+    {
+        final ServerLevel level = helper.getLevel();
+        final RecipeManager recipes = (RecipeManager) level.recipeAccess();
+        final String ns = TFCFoodPort.MOD_ID + ":";
+
+        final boolean hasFD = ModList.get().isLoaded("farmersdelight");
+        final boolean hasKC = ModList.get().isLoaded("kaleidoscope_cookery");
+
+        final java.util.Set<String> ids = new java.util.HashSet<>();
+        for (final RecipeHolder<?> holder : recipes.getRecipes())
+        {
+            ids.add(holder.id().identifier().toString());
+        }
+        helper.assertTrue(!ids.isEmpty(), "The recipe manager returned no recipes at all");
+
+        // Farmer's Delight's variants live at the plain name, so their presence is the condition on that mod.
+        helper.assertTrue(ids.contains(ns + "food/jam/strawberry") == hasFD,
+            "The Farmer's Delight jam recipe is " + (ids.contains(ns + "food/jam/strawberry") ? "loaded" : "missing")
+                + " but Farmer's Delight is " + (hasFD ? "installed" : "not installed"));
+
+        helper.assertTrue(ids.contains(ns + "food/jam/strawberry_kc") == hasKC,
+            "The Kaleidoscope Cookery jam recipe is "
+                + (ids.contains(ns + "food/jam/strawberry_kc") ? "loaded" : "missing")
+                + " but Kaleidoscope Cookery is " + (hasKC ? "installed" : "not installed"));
+
+        // The vanilla fallback is the inverse of BOTH, so it must be absent whenever either mod is present.
+        final boolean wantVanilla = !hasFD && !hasKC;
+        helper.assertTrue(ids.contains(ns + "food/jam/strawberry_vanilla") == wantVanilla,
+            "The vanilla jam fallback is "
+                + (ids.contains(ns + "food/jam/strawberry_vanilla") ? "loaded" : "missing")
+                + " but it should be " + (wantVanilla ? "loaded" : "absent")
+                + " (Farmer's Delight " + (hasFD ? "present" : "absent")
+                + ", Kaleidoscope Cookery " + (hasKC ? "present" : "absent") + ")");
+
+        // And the whole point: a jam must always be makeable by exactly one route, whichever mods are installed.
+        final long jamRoutes = ids.stream().filter(id -> id.startsWith(ns + "food/jam/strawberry")).count();
+        helper.assertTrue(jamRoutes >= 1,
+            "No way to make a strawberry jam exists at all with this mod set, so the conditions are too strict");
+
+        // Spot check the same rule on the grain chain, since it goes through cutting boards rather than pots and so
+        // exercises a different recipe type with a different condition.
+        helper.assertTrue(ids.contains(ns + "food/wheat_grain") == hasFD,
+            "The Farmer's Delight wheat-to-grain recipe is "
+                + (ids.contains(ns + "food/wheat_grain") ? "loaded" : "missing")
+                + " but Farmer's Delight is " + (hasFD ? "installed" : "not installed"));
+        helper.assertTrue(ids.contains(ns + "food/wheat_grain_kc") == hasKC,
+            "The Kaleidoscope Cookery wheat-to-grain recipe is "
+                + (ids.contains(ns + "food/wheat_grain_kc") ? "loaded" : "missing")
+                + " but Kaleidoscope Cookery is " + (hasKC ? "installed" : "not installed"));
+
+        helper.succeed();
     }
 
     /**

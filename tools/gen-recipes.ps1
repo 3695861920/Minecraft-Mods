@@ -33,6 +33,44 @@ function Write-Recipe([string]$path, [string]$json) {
   $script:count++
 }
 
+# ---------------------------------------------------------------- load time conditions
+# A recipe can carry "neoforge:conditions", which NeoForge evaluates WHILE THE DATAPACK LOADS and drops the recipe
+# if it does not hold. That is the mechanism behind the multi mod support: the same processing step is emitted up to
+# three times - once for Farmer's Delight's machines, once for Kaleidoscope Cookery's, once using only vanilla
+# blocks - and the conditions decide which of them actually exist in the world.
+#
+# This is deliberately a datapack level thing rather than something the mod checks in code. Recipes are data, so a
+# condition is evaluated by the same loader that reads the file, at the stage where the set of recipes is being
+# built. Doing it in code would mean registering three recipe sets and deleting two of them after the fact.
+#
+# The field is "modid" for mod_loaded and "value" for not, and the condition's own name goes in "type" - these are
+# in NeoForge's source at common/conditions/ModLoadedCondition and NotCondition.
+$condFD = '    { "type": "neoforge:mod_loaded", "modid": "farmersdelight" }'
+$condKC = '    { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" }'
+# Only when NEITHER mod is present. Two conditions in the list are ANDed, so listing both negations is enough to
+# express "no Farmer's Delight and no Kaleidoscope Cookery".
+$condVanilla = @'
+    { "type": "neoforge:not", "value": { "type": "neoforge:mod_loaded", "modid": "farmersdelight" } },
+    { "type": "neoforge:not", "value": { "type": "neoforge:mod_loaded", "modid": "kaleidoscope_cookery" } }
+'@
+
+# Inserts a conditions block as the first key of a recipe object. The recipe builders below all return a string that
+# starts with "{", so the block is spliced in right after that brace; JSON does not care about key order.
+function With-Conditions([string]$json, [string]$conditions) {
+  $i = $json.IndexOf('{')
+  if ($i -lt 0) { throw 'recipe json does not start with an object' }
+  return $json.Substring(0, $i + 1) + "`n  `"neoforge:conditions`": [`n" + $conditions + "`n  ]," + $json.Substring($i + 1)
+}
+
+# Writes one recipe variant. $conditions is the block above; pass an empty string for an unconditional recipe.
+function Write-Conditional([string]$path, [string]$json, [string]$conditions, [string]$mustContain) {
+  if ($conditions -ne '') { $json = With-Conditions $json $conditions }
+  if ($mustContain -and $json -notmatch [regex]::Escape($mustContain)) {
+    throw ("generated recipe lost '" + $mustContain + "': " + $path)
+  }
+  Write-Recipe $path $json
+}
+
 # ---------------------------------------------------------------- helpers
 $knifeTool = @'
     {
@@ -156,10 +194,72 @@ $list
 "@
 }
 
+# ---------------------------------------------------------------- Kaleidoscope Cookery builders
+# Field names and shapes are taken from Kaleidoscope Cookery's own recipe files in its jar, which is the ground
+# truth for the format:
+#   millstone       { "ingredient": <ingredient>, "result": { "count": n, "id": "..." } }
+#   chopping_board  { "cut_count": n, "ingredient": <ingredient>, "model_id": "...", "result": { ... } }
+#   pot             { "carrier": <ingredient>, "ingredients": [ ... ], "result": { ... } }
+# `carrier` is that mod's equivalent of Farmer's Delight's container: the item the finished dish is served in.
+# `model_id` on the chopping board only picks which in world model is shown while cutting, so it is left out.
+
+function KcMillstone([string]$ingredient, [string]$result, [int]$resultCount) {
+  return @"
+{
+  "type": "kaleidoscope_cookery:millstone",
+  "ingredient": "$ingredient",
+  "result": {
+    "count": $resultCount,
+    "id": "$result"
+  }
+}
+"@
+}
+
+function KcChoppingBoard([string]$ingredient, [string]$result, [int]$resultCount, [int]$cutCount) {
+  return @"
+{
+  "type": "kaleidoscope_cookery:chopping_board",
+  "cut_count": $cutCount,
+  "ingredient": "$ingredient",
+  "result": {
+    "count": $resultCount,
+    "id": "$result"
+  }
+}
+"@
+}
+
+function KcPot([string[]]$ingredients, [string]$result, [int]$resultCount, [string]$carrier) {
+  $list = ($ingredients | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
+  $carrierBlock = ''
+  if ($carrier -ne '') { $carrierBlock = "  `"carrier`": `"$carrier`",`n" }
+  return @"
+{
+  "type": "kaleidoscope_cookery:pot",
+$carrierBlock  "ingredients": [
+$list
+  ],
+  "result": {
+    "count": $resultCount,
+    "id": "$result"
+  }
+}
+"@
+}
+
 $grains = @('barley', 'oat', 'rye', 'wheat', 'rice', 'maize')
 
 # ================================================================ grain chain
 # crop -> grain -> flour -> dough -> bread
+#
+# Each processing step that needs a mod machine is emitted three times, and the conditions decide which survives
+# loading:
+#   <name>           Farmer's Delight  (cutting board / cooking pot)   - active when Farmer's Delight is present
+#   <name>_kc        Kaleidoscope Cookery (chopping board / millstone / pot) - when that mod is present
+#   <name>_vanilla   vanilla only      (crafting / furnace)            - only when NEITHER mod is present
+# With both mods installed the Farmer's Delight and Kaleidoscope Cookery variants are both live, which is intended:
+# they are different machines, so the player can use whichever they built.
 foreach ($g in $grains) {
   $crop = "${ns}" + ':food/' + $g
   $grain = "${ns}" + ':food/' + $g + '_grain'
@@ -168,12 +268,21 @@ foreach ($g in $grains) {
   $bread = "${ns}" + ':food/' + $g + '_bread'
 
   # knife the harvested crop into grain
-  Write-Recipe "food/$g`_grain.json" (Cutting $crop $grain 1)
-  # grind the grain into flour on the cutting board
-  Write-Recipe "food/$g`_flour.json" (Cutting $grain $flour 1)
-  # flour + water -> dough, three ways
+  Write-Conditional "food/$g`_grain.json" (Cutting $crop $grain 1) $condFD $grain
+  Write-Conditional "food/$g`_grain_kc.json" (KcChoppingBoard $crop $grain 1 3) $condKC $grain
+  Write-Conditional "food/$g`_grain_vanilla.json" (Shapeless @($crop) $grain 1) $condVanilla $grain
+
+  # grind the grain into flour
+  Write-Conditional "food/$g`_flour.json" (Cutting $grain $flour 1) $condFD $flour
+  Write-Conditional "food/$g`_flour_kc.json" (KcMillstone $grain $flour 1) $condKC $flour
+  Write-Conditional "food/$g`_flour_vanilla.json" (Shapeless @($grain) $flour 1) $condVanilla $flour
+
+  # flour + water -> dough. The crafting recipe is the port's own vanilla path and is left unconditional: it is not
+  # a stand in for a mod machine, and a water bucket is a legitimate way to make dough. The two pot variants are the
+  # mod machine paths and stay conditional.
   Write-Recipe "food/$g`_dough_from_crafting.json" (ShapelessGroup 'tfc_food_port_dough' @($flour, 'minecraft:water_bucket') $dough 1)
-  Write-Recipe "food/$g`_dough_from_cooking.json" (Cooking @($flour, $flour) $dough 1 100 '')
+  Write-Conditional "food/$g`_dough_from_cooking.json" (Cooking @($flour, $flour) $dough 1 100 '') $condFD $dough
+  Write-Conditional "food/$g`_dough_from_pot_kc.json" (KcPot @($flour, $flour) $dough 1 '') $condKC $dough
   # (throwing the flour into water is handled in code, see WaterConvertibleItem)
   # bake the dough
   Write-Recipe "food/$g`_bread_from_smelting.json" (Smelting $dough $bread)
@@ -187,8 +296,11 @@ foreach ($g in $grains) {
   Write-Recipe "food/$g`_bread_jam_sandwich.json" (ShapelessGroup 'tfc_food_port_jam_sandwich' @($bread, "#$ns`:jams", '#c:foods/cooked_meat') $jamSandwich 1)
 }
 
-# cooked rice from the cooking pot
-Write-Recipe 'food/cooked_rice.json' (Cooking @(("${ns}" + ':food/rice')) ("${ns}" + ':food/cooked_rice') 1 100 '')
+# cooked rice, in whichever pot is available; with neither mod it is simply cooked like any other food
+Write-Conditional 'food/cooked_rice.json' (Cooking @(("${ns}" + ':food/rice')) ("${ns}" + ':food/cooked_rice') 1 100 '') $condFD 'cooked_rice'
+Write-Conditional 'food/cooked_rice_kc.json' (KcPot @(("${ns}" + ':food/rice')) ("${ns}" + ':food/cooked_rice') 1 '') $condKC 'cooked_rice'
+Write-Conditional 'food/cooked_rice_vanilla_from_smelting.json' (Smelting ("${ns}" + ':food/rice') ("${ns}" + ':food/cooked_rice')) $condVanilla 'cooked_rice'
+Write-Conditional 'food/cooked_rice_vanilla_from_smoking.json' (Smoking ("${ns}" + ':food/rice') ("${ns}" + ':food/cooked_rice')) $condVanilla 'cooked_rice'
 
 # ================================================================ vegetables and tubers
 Write-Recipe 'food/baked_potato_from_smelting.json' (Smelting ("${ns}" + ':food/potato') ("${ns}" + ':food/baked_potato'))
@@ -198,14 +310,22 @@ Write-Recipe 'food/cooked_cassava_from_smoking.json' (Smoking ("${ns}" + ':food/
 Write-Recipe 'food/cooked_lentil_from_smelting.json' (Smelting ("${ns}" + ':food/lentil') ("${ns}" + ':food/cooked_lentil'))
 Write-Recipe 'food/cooked_lentil_from_smoking.json' (Smoking ("${ns}" + ':food/lentil') ("${ns}" + ':food/cooked_lentil'))
 
-# melon and pumpkin are cut into pieces
-Write-Recipe 'food/melon_slice.json' (Cutting 'minecraft:melon' ("${ns}" + ':food/melon_slice') 4)
-Write-Recipe 'food/pumpkin_chunks.json' (Cutting 'minecraft:pumpkin' ("${ns}" + ':food/pumpkin_chunks') 4)
+# melon and pumpkin are cut into pieces. A knife on a board, a board in Kaleidoscope Cookery, or a knife-free
+# shapeless craft when neither mod is installed.
+Write-Conditional 'food/melon_slice.json' (Cutting 'minecraft:melon' ("${ns}" + ':food/melon_slice') 4) $condFD 'melon_slice'
+Write-Conditional 'food/melon_slice_kc.json' (KcChoppingBoard 'minecraft:melon' ("${ns}" + ':food/melon_slice') 4 4) $condKC 'melon_slice'
+Write-Conditional 'food/melon_slice_vanilla.json' (Shapeless @('minecraft:melon') ("${ns}" + ':food/melon_slice') 4) $condVanilla 'melon_slice'
+Write-Conditional 'food/pumpkin_chunks.json' (Cutting 'minecraft:pumpkin' ("${ns}" + ':food/pumpkin_chunks') 4) $condFD 'pumpkin_chunks'
+Write-Conditional 'food/pumpkin_chunks_kc.json' (KcChoppingBoard 'minecraft:pumpkin' ("${ns}" + ':food/pumpkin_chunks') 4 4) $condKC 'pumpkin_chunks'
+Write-Conditional 'food/pumpkin_chunks_vanilla.json' (Shapeless @('minecraft:pumpkin') ("${ns}" + ':food/pumpkin_chunks') 4) $condVanilla 'pumpkin_chunks'
 
-# ================================================================ eggs
+# eggs. A boiled egg is a pot recipe when a pot exists, and an ordinary cooked food when none does.
 Write-Recipe 'food/cooked_egg_from_smelting.json' (Smelting 'minecraft:egg' ("${ns}" + ':food/cooked_egg'))
 Write-Recipe 'food/cooked_egg_from_smoking.json' (Smoking 'minecraft:egg' ("${ns}" + ':food/cooked_egg'))
-Write-Recipe 'food/boiled_egg.json' (Cooking @('minecraft:egg') ("${ns}" + ':food/boiled_egg') 1 200 '')
+Write-Conditional 'food/boiled_egg.json' (Cooking @('minecraft:egg') ("${ns}" + ':food/boiled_egg') 1 200 '') $condFD 'boiled_egg'
+Write-Conditional 'food/boiled_egg_kc.json' (KcPot @('minecraft:egg') ("${ns}" + ':food/boiled_egg') 1 '') $condKC 'boiled_egg'
+Write-Conditional 'food/boiled_egg_vanilla_from_smelting.json' (Smelting 'minecraft:egg' ("${ns}" + ':food/boiled_egg')) $condVanilla 'boiled_egg'
+Write-Conditional 'food/boiled_egg_vanilla_from_smoking.json' (Smoking 'minecraft:egg' ("${ns}" + ':food/boiled_egg')) $condVanilla 'boiled_egg'
 
 # ================================================================ seaweed
 Write-Recipe 'food/dried_seaweed_from_smelting.json' (Smelting ("${ns}" + ':food/fresh_seaweed') ("${ns}" + ':food/dried_seaweed'))
@@ -213,15 +333,21 @@ Write-Recipe 'food/dried_seaweed_from_smoking.json' (Smoking ("${ns}" + ':food/f
 
 # ================================================================ cheese
 # milk + rennet -> curd (cooking pot) -> cheese (furnace / smoker)
-# No "container" here: a milk bucket already leaves an empty bucket as its crafting remainder, and Farmer's Delight
-# rejects pot recipes whose declared container does not match that remainder ("container does not match the consumed
-# remainder"). The curd is a solid item, so it needs no bowl or bucket to be taken out with either.
-Write-Recipe 'food/cheese_curd.json' (Cooking @('minecraft:milk_bucket', ("${ns}" + ':rennet')) ("${ns}" + ':food/cheese_curd') 1 600 '')
+# No "container" here: a milk bucket already leaves an empty bucket as its crafting remainder, and the pot puts
+# ingredient remainders back on its own. The curd is a solid item, so it needs no bowl or bucket to be taken out
+# with either.
+Write-Conditional 'food/cheese_curd.json' (Cooking @('minecraft:milk_bucket', ("${ns}" + ':rennet')) ("${ns}" + ':food/cheese_curd') 1 600 '') $condFD 'cheese_curd'
+Write-Conditional 'food/cheese_curd_kc.json' (KcPot @('minecraft:milk_bucket', ("${ns}" + ':rennet')) ("${ns}" + ':food/cheese_curd') 1 '') $condKC 'cheese_curd'
+Write-Conditional 'food/cheese_curd_vanilla.json' (Shapeless @('minecraft:milk_bucket', ("${ns}" + ':rennet')) ("${ns}" + ':food/cheese_curd') 1) $condVanilla 'cheese_curd'
 Write-Recipe 'food/cheese_from_smelting.json' (Smelting ("${ns}" + ':food/cheese_curd') ("${ns}" + ':food/cheese'))
 Write-Recipe 'food/cheese_from_smoking.json' (Smoking ("${ns}" + ':food/cheese_curd') ("${ns}" + ':food/cheese'))
 
 # ================================================================ jams
-# two of the fruit plus a sweetener, cooked in the pot
+# Two of the fruit plus a sweetener, cooked in whichever pot is available. With neither mod installed a jam is made
+# in the crafting grid instead, which is the only way left to make one.
+#
+# A jam has no container - it comes out of the pot as the jar itself - so Kaleidoscope Cookery's "carrier" is left
+# out here. That is also what keeps a jam distinguishable from the fruit soup below.
 $jamFruits = @(
   'blackberry', 'raspberry', 'blueberry', 'elderberry', 'snowberry', 'bunchberry', 'gooseberry',
   'cloudberry', 'strawberry', 'wintergreen_berry', 'cranberry',
@@ -230,10 +356,18 @@ $jamFruits = @(
 )
 foreach ($f in $jamFruits) {
   $fruit = "${ns}" + ':food/' + $f
-  Write-Recipe "food/jam/$f.json" (Cooking @($fruit, $fruit, 'minecraft:sugar') ("${ns}" + ':food/jam/' + $f) 2 500 '')
+  $jam = "${ns}" + ':food/jam/' + $f
+  Write-Conditional "food/jam/$f.json" (Cooking @($fruit, $fruit, 'minecraft:sugar') $jam 2 500 '') $condFD $jam
+  Write-Conditional "food/jam/$f`_kc.json" (KcPot @($fruit, $fruit, 'minecraft:sugar') $jam 2 '') $condKC $jam
+  Write-Conditional "food/jam/$f`_vanilla.json" (Shapeless @($fruit, $fruit, 'minecraft:sugar') $jam 2) $condVanilla $jam
 }
-# peanut butter uses the peanut instead of sugar
-Write-Recipe 'food/jam/peanut.json' (Cooking @(("${ns}" + ':food/peanut'), ("${ns}" + ':food/peanut'), 'minecraft:sugar') ("${ns}" + ':food/jam/peanut') 2 500 '')
+# peanut butter uses the peanut instead of sugar. The vanilla variant does the same, so the fallback keeps the
+# flavour rather than quietly becoming a different recipe.
+$peanut = "${ns}" + ':food/peanut'
+$peanutJam = "${ns}" + ':food/jam/peanut'
+Write-Conditional 'food/jam/peanut.json' (Cooking @($peanut, $peanut, 'minecraft:sugar') $peanutJam 2 500 '') $condFD $peanutJam
+Write-Conditional 'food/jam/peanut_kc.json' (KcPot @($peanut, $peanut, 'minecraft:sugar') $peanutJam 2 '') $condKC $peanutJam
+Write-Conditional 'food/jam/peanut_vanilla.json' (Shapeless @($peanut, $peanut, 'minecraft:sugar') $peanutJam 2) $condVanilla $peanutJam
 
 # ================================================================ soups (pot, served in a bowl)
 # Two constraints shape these ingredient lists:
@@ -262,7 +396,13 @@ $soups = @{
   'dairy_soup'      = @(("${ns}" + ':food/cheese'), '#c:foods/vegetable', '#c:crops/grain')
 }
 foreach ($k in ($soups.Keys | Sort-Object)) {
-  Write-Recipe "food/$k.json" (Cooking $soups[$k] ("${ns}" + ':food/' + $k) 1 600 'minecraft:bowl')
+  $soupId = "${ns}" + ':food/' + $k
+  # a bowl is the container in every machine: Farmer's Delight calls it "container", Kaleidoscope Cookery "carrier"
+  Write-Conditional "food/$k.json" (Cooking $soups[$k] $soupId 1 600 'minecraft:bowl') $condFD $soupId
+  Write-Conditional "food/$k`_kc.json" (KcPot $soups[$k] $soupId 1 'minecraft:bowl') $condKC $soupId
+  # vanilla fallback: the same ingredients shaken up with a bowl in the crafting grid. The water bucket needed by
+  # the fruit soup is fine here too - vanilla crafting returns a bucket for it on its own.
+  Write-Conditional "food/$k`_vanilla.json" (Shapeless (@('minecraft:bowl') + $soups[$k]) $soupId 1) $condVanilla $soupId
 }
 
 # ================================================================ salads (crafting, served in a bowl)
@@ -280,8 +420,13 @@ foreach ($k in ($salads.Keys | Sort-Object)) {
 # ================================================================ jams, part 2: the two golden apple ones
 # A magical apple makes a magical jam. Two apples plus a sweetener, the same shape as every other jam, so a golden
 # apple from an apple tree can be turned into something worth eight mooncakes rather than one snack.
-Write-Recipe 'food/jam/gold_apple.json' (Cooking @('minecraft:golden_apple', 'minecraft:golden_apple', 'minecraft:sugar') ("${ns}" + ':food/jam/gold_apple') 2 500 '')
-Write-Recipe 'food/jam/enchanted_gold_apple.json' (Cooking @('minecraft:enchanted_golden_apple', 'minecraft:enchanted_golden_apple', 'minecraft:sugar') ("${ns}" + ':food/jam/enchanted_gold_apple') 2 500 '')
+foreach ($pair in @(@('gold_apple', 'minecraft:golden_apple'), @('enchanted_gold_apple', 'minecraft:enchanted_golden_apple'))) {
+  $name = $pair[0]; $apple = $pair[1]
+  $jamId = "${ns}" + ':food/jam/' + $name
+  Write-Conditional "food/jam/$name.json" (Cooking @($apple, $apple, 'minecraft:sugar') $jamId 2 500 '') $condFD $name
+  Write-Conditional "food/jam/$name`_kc.json" (KcPot @($apple, $apple, 'minecraft:sugar') $jamId 2 '') $condKC $name
+  Write-Conditional "food/jam/$name`_vanilla.json" (Shapeless @($apple, $apple, 'minecraft:sugar') $jamId 2) $condVanilla $name
+}
 
 # ================================================================ mooncakes
 # Mooncakes are made in two steps, which is what makes them feel baked rather than assembled:
