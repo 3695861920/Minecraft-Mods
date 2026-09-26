@@ -115,13 +115,23 @@ configurations {
 }
 
 dependencies {
-    // Farmer's Delight supplies the cooking pot and cutting board that replace TFC's pots and stoves.
-    // It is a hard dependency of the mod, so it is present at runtime here as well.
-    localRuntime files('FarmersDelight-26.1.2-1.3.3-fix4.jar')
+    // Farmer's Delight supplies the cooking pot and cutting board that replace TFC's pots and stoves. The jar is a
+    // local file rather than a repository artifact, and it is deliberately not committed (it is not ours to
+    // redistribute), so it is added only when it is actually on disk. A hard `localRuntime files(...)` entry would
+    // make a plain `gradlew build` fail on a fresh clone and on CI, where that jar does not exist.
+    def farmerDelightJar = file('FarmersDelight-26.1.2-1.3.3-fix4.jar')
+    if (farmerDelightJar.exists()) {
+        localRuntime files(farmerDelightJar)
+    } else {
+        logger.lifecycle("Farmer's Delight jar not found, so it is not on the runtime classpath. Building still " +
+            "works; running the game to try the cooking pot and cutting board recipes needs it.")
+    }
 
     // JEI is only a development aid: it lets the recipes be browsed in game instead of reading JSON files.
     // localRuntime keeps it out of the published metadata, so it is not a dependency of the mod itself.
-    localRuntime 'mezz.jei:jei-26.1.2-neoforge:29.6.2.38'
+    if (farmerDelightJar.exists()) {
+        localRuntime 'mezz.jei:jei-26.1.2-neoforge:29.6.2.38'
+    }
 
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
