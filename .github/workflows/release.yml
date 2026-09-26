@@ -30,18 +30,52 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: '25'
 
       # Caches the Gradle distribution and the NeoForge/Minecraft artifacts between runs, which is most of the
-      # build time on a cold cache.
+      # build time on a cold cache. The version is pinned so the build never depends on whatever Gradle the runner
+      # image happens to ship, and so it is fetched from services.gradle.org.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.1'
 
+      # Printed before the build so that a failure past this point can be read with confidence: the JDK and Gradle
+      # the runner resolved, and the wrapper URL - which is deliberately NOT the official one, because the official
+      # URL redirects to github.com and is unreachable from the network this project is developed on.
+      - name: Show the toolchain the runner resolved
+        shell: bash
+        run: |
+          java -version
+          gradle --version
+          echo '--- gradle-wrapper.properties ---'
+          cat gradle/wrapper/gradle-wrapper.properties
+
+      # `gradle`, not `./gradlew`, on purpose. The wrapper is configured to fetch its distribution from a mirror,
+      # which is the right thing on the development machine and the wrong thing here: the action above has already
+      # installed Gradle 9.2.1 from the official source, so running the wrapper as well would download the same
+      # distribution a second time, from a mirror chosen for a network this runner is not on.
+      #
+      # The output is teed to a file so the cause of a failure can be published as a workflow annotation. Without
+      # that, a failed run only reports "Process completed with exit code 1" to anything reading the API, and the
+      # actual error is locked inside the web UI.
       - name: Build
-        run: ./gradlew build --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set +e
+          gradle build --no-daemon --console=plain --stacktrace 2>&1 | tee build.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            grep -E 'FAILURE:|error:|Caused by:|What went wrong|Could not|No matching|Permission denied|Unsupported|not found' build.log \
+              | head -n 25 \
+              | while IFS= read -r line; do echo "::error::$line"; done
+            echo '--- last 60 lines of the build log ---'
+            tail -n 60 build.log
+            exit "$code"
+          fi
 
       # build/libs holds the mod jar and the sources jar; a player installs the one without a classifier.
       - name: Collect the mod jar
@@ -58,6 +92,15 @@ jobs:
         with:
           name: tfc_food_port
           path: ${{ steps.jar.outputs.path }}
+
+      # Kept even when the build fails, so a failure can be diagnosed without needing access to the run's logs.
+      - name: Upload the build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
 
       - name: Publish the release
         if: startsWith(github.ref, 'refs/tags/')
