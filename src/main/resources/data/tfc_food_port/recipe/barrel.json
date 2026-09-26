@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "tfc_food_port_barrel",
+  "key": {
+    "S": "#minecraft:slabs"
+  },
+  "pattern": [
+    "SSS",
+    "S S",
+    "SSS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:barrel"
+  }
+}

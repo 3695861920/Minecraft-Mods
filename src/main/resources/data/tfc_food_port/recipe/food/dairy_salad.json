@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "tfc_food_port:food/cheese",
+    "#c:foods/vegetable",
+    "#c:foods/vegetable"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/dairy_salad"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "neoforge:add_table",
+  "conditions": [
+    {
+      "condition": "minecraft:any_of",
+      "terms": [
+        {
+          "condition": "neoforge:loot_table_id",
+          "loot_table_id": "minecraft:blocks/short_grass"
+        },
+        {
+          "condition": "neoforge:loot_table_id",
+          "loot_table_id": "minecraft:blocks/tall_grass"
+        }
+      ]
+    },
+    {
+      "condition": "minecraft:random_chance",
+      "chance": 0.125
+    }
+  ],
+  "table": "tfc_food_port:grass_seeds"
+}

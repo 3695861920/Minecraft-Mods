@@ -1,0 +1,12 @@
+{
+  "type": "farmersdelight:cooking",
+  "experience": 0.35,
+  "cookingtime": 100,
+  "ingredients": [
+    "tfc_food_port:food/rice"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/cooked_rice"
+  }
+}

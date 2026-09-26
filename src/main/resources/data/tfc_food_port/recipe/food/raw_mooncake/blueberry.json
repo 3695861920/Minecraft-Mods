@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "tfc_food_port_raw_mooncake",
+  "ingredients": [
+    "tfc_food_port:food/jam/blueberry",
+    "#c:foods/dough",
+    "#c:foods/dough",
+    "#c:foods/dough",
+    "#c:foods/dough"
+  ],
+  "result": {
+    "count": 8,
+    "id": "tfc_food_port:food/raw_mooncake/blueberry"
+  }
+}

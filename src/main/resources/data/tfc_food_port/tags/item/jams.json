@@ -1,0 +1,28 @@
+{
+  "values": [
+    "tfc_food_port:food/jam/blackberry",
+    "tfc_food_port:food/jam/raspberry",
+    "tfc_food_port:food/jam/blueberry",
+    "tfc_food_port:food/jam/elderberry",
+    "tfc_food_port:food/jam/snowberry",
+    "tfc_food_port:food/jam/bunchberry",
+    "tfc_food_port:food/jam/gooseberry",
+    "tfc_food_port:food/jam/cloudberry",
+    "tfc_food_port:food/jam/strawberry",
+    "tfc_food_port:food/jam/wintergreen_berry",
+    "tfc_food_port:food/jam/cranberry",
+    "tfc_food_port:food/jam/banana",
+    "tfc_food_port:food/jam/cherry",
+    "tfc_food_port:food/jam/green_apple",
+    "tfc_food_port:food/jam/red_apple",
+    "tfc_food_port:food/jam/lemon",
+    "tfc_food_port:food/jam/olive",
+    "tfc_food_port:food/jam/orange",
+    "tfc_food_port:food/jam/peach",
+    "tfc_food_port:food/jam/plum",
+    "tfc_food_port:food/jam/melon_slice",
+    "tfc_food_port:food/jam/peanut",
+    "tfc_food_port:food/jam/gold_apple",
+    "tfc_food_port:food/jam/enchanted_gold_apple"
+  ]
+}

@@ -1,0 +1,27 @@
+# Disable autocrlf on generated files, they always generate with LF
+# Add any extra files or paths here to make git stop saying they
+# are changed when only line endings change.
+src/generated/**/.cache/* text eol=lf
+src/generated/**/*.json text eol=lf
+
+# ==========================================================================================
+# Line endings
+# ==========================================================================================
+# This project is developed on Windows while the generators write LF, so without these rules git reports every
+# generated file as modified the moment it is touched - the diff is nothing but line endings, which buries the
+# real change. Sources and data are pinned to LF (what the tools write) and the Windows scripts to CRLF (what
+# cmd.exe and PowerShell expect).
+*.java       text eol=lf
+*.json       text eol=lf
+*.tsv        text eol=lf
+*.gradle     text eol=lf
+*.properties text eol=lf
+*.md         text eol=lf
+*.yml        text eol=lf
+*.ps1        text eol=crlf
+*.cmd        text eol=crlf
+*.bat        text eol=crlf
+
+# Binary formats: git must never touch these
+*.png binary
+*.jar binary

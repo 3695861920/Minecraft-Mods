@@ -1,0 +1,97 @@
+name: Build and release
+
+# Runs on every tag that looks like a version, and publishes the built mod to a GitHub Release.
+#
+# The release is published with the workflow's own GITHUB_TOKEN, which GitHub issues to the run automatically.
+# No personal access token is involved and none needs to be stored in the repository, which is why the release
+# step is here rather than being something a developer runs by hand.
+#
+# The build needs the TerraFirmaCraft jar, because the generator scripts in tools/ read TFC's textures and data
+# out of it. That jar is deliberately not in the repository (it is someone else's work and this project's
+# EUPL-1.2 licence does not permit redistributing it), so it is downloaded from its official Maven repository
+# for the duration of the build. Only the built mod jar is ever published.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  # lets the workflow be run by hand from the Actions tab, which is useful for testing the build without tagging
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The generators need the TerraFirmaCraft jar next to the project. TFC publishes NeoForge builds on its own
+      # Maven, and the exact file the generators look for is matched by a wildcard, so the name only has to contain
+      # "TerraFirmaCraft". TFC_FOOD_PORT_TFC_URL can be set as a repository variable to pin a different build.
+      - name: Fetch the TerraFirmaCraft jar the generators read from
+        run: |
+          set -euo pipefail
+          url="${TFC_FOOD_PORT_TFC_URL:-https://modmuss50.me/maven/net/dries007/tfc/TerraFirmaCraft-NeoForge-1.21.1-4.2.10.jar}"
+          echo "downloading $url"
+          curl -fsSL --retry 3 --retry-delay 5 -o TerraFirmaCraft-NeoForge-1.21.1-4.2.10.jar "$url"
+          ls -l TerraFirmaCraft-NeoForge-1.21.1-4.2.10.jar
+        env:
+          TFC_FOOD_PORT_TFC_URL: ${{ vars.TFC_FOOD_PORT_TFC_URL }}
+
+      # The generators are PowerShell scripts, so Windows PowerShell has to be available. It is on the runner by
+      # default as pwsh, and this job calls it explicitly for that reason.
+      - name: Regenerate every asset and recipe from the source data
+        shell: pwsh
+        run: |
+          ./tools/gen-textures.ps1
+          ./tools/gen-resources.ps1
+          ./tools/gen-crops.ps1
+          ./tools/gen-plants.ps1
+          ./tools/gen-item-definitions.ps1
+          ./tools/gen-recipes.ps1
+          ./tools/gen-loot.ps1
+          ./tools/gen-barrel.ps1
+
+      - name: Audit the generated assets
+        shell: pwsh
+        run: ./tools/verify-assets.ps1
+
+      - name: Build
+        run: ./gradlew build --no-daemon --stacktrace
+
+      # The mod jar is the one without a classifier; build/libs also holds the sources jar, which is not what a
+      # player installs.
+      - name: Collect the mod jar
+        id: jar
+        run: |
+          set -euo pipefail
+          jar="$(ls build/libs/*.jar | grep -v -- '-sources' | head -n 1)"
+          echo "mod jar: $jar"
+          echo "path=$jar" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the jar as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfc_food_port
+          path: ${{ steps.jar.outputs.path }}
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.jar.outputs.path }}
+          generate_release_notes: true
+          draft: false

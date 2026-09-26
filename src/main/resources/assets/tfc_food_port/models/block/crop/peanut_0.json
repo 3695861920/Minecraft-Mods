@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "tfc_food_port:block/crop/peanut_0"
+  }
+}

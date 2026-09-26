@@ -1,0 +1,19 @@
+{
+  "type": "farmersdelight:cooking",
+  "container": {
+    "count": 1,
+    "id": "minecraft:bowl"
+  },
+  "experience": 0.35,
+  "cookingtime": 600,
+  "ingredients": [
+    "#c:foods/fruit",
+    "#c:foods/fruit",
+    "minecraft:sugar",
+    "minecraft:water_bucket"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/fruit_soup"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "farmersdelight:cooking",
+  "experience": 0.35,
+  "cookingtime": 100,
+  "ingredients": [
+    "tfc_food_port:food/wheat_flour",
+    "tfc_food_port:food/wheat_flour"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/wheat_dough"
+  }
+}

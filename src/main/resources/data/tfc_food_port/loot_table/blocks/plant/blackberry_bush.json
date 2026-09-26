@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "rolls": 1.0,
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" },
+        {
+          "condition": "minecraft:table_bonus",
+          "enchantment": "minecraft:fortune",
+          "chances": [0.05, 0.1, 0.15, 0.2]
+        }
+      ],
+      "entries": [
+        { "type": "minecraft:item", "name": "tfc_food_port:food/blackberry" }
+      ]
+    }
+  ],
+  "random_sequence": "tfc_food_port:blocks/plant/blackberry_bush"
+}

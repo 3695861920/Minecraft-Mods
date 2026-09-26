@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "tfc_food_port:item/food/mooncake/strawberry"
+  }
+}

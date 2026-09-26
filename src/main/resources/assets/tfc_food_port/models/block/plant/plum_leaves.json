@@ -1,0 +1,6 @@
+{
+  "parent": "tfc_food_port:block/plant/leaves_base",
+  "textures": {
+    "all": "tfc_food_port:block/plant/plum_leaves"
+  }
+}

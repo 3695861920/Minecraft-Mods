@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "rolls": 1.0,
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" }
+      ],
+      "entries": [
+        { "type": "minecraft:item", "name": "tfc_food_port:food/lemon" }
+      ]
+    }
+  ],
+  "random_sequence": "tfc_food_port:blocks/plant/lemon_sapling"
+}

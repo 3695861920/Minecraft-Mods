@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "ingredient": "tfc_food_port:food/fresh_seaweed",
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/dried_seaweed"
+  }
+}

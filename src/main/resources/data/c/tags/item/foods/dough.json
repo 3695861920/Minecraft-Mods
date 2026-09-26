@@ -1,0 +1,10 @@
+{
+  "values": [
+    "tfc_food_port:food/barley_dough",
+    "tfc_food_port:food/oat_dough",
+    "tfc_food_port:food/rye_dough",
+    "tfc_food_port:food/wheat_dough",
+    "tfc_food_port:food/rice_dough",
+    "tfc_food_port:food/maize_dough"
+  ]
+}

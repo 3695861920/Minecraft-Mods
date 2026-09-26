@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tfc_food_port:block/crop/garlic_0"
+    },
+    "age=1": {
+      "model": "tfc_food_port:block/crop/garlic_1"
+    },
+    "age=2": {
+      "model": "tfc_food_port:block/crop/garlic_2"
+    },
+    "age=3": {
+      "model": "tfc_food_port:block/crop/garlic_3"
+    },
+    "age=4": {
+      "model": "tfc_food_port:block/crop/garlic_4"
+    },
+    "age=5": {
+      "model": "tfc_food_port:block/crop/garlic_4"
+    },
+    "age=6": {
+      "model": "tfc_food_port:block/crop/garlic_4"
+    },
+    "age=7": {
+      "model": "tfc_food_port:block/crop/garlic_4"
+    }
+  }
+}

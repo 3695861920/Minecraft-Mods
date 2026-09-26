@@ -1,0 +1,21 @@
+{
+  "feature": "tfc_food_port:red_apple_tree",
+  "placement": [
+    { "type": "minecraft:rarity_filter", "chance": 12 },
+    { "type": "minecraft:in_square" },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "OCEAN_FLOOR"
+    },
+    {
+      "type": "minecraft:block_predicate_filter",
+      "predicate": {
+        "type": "minecraft:would_survive",
+        "state": {
+          "Name": "tfc_food_port:plant/red_apple_sapling",
+          "Properties": { "stage": "0" }
+        }
+      }
+    }
+  ]
+}

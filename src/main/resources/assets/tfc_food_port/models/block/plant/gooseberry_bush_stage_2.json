@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "tfc_food_port:block/plant/gooseberry_stage_2"
+  }
+}

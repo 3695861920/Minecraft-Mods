@@ -1,0 +1,150 @@
+food/barley	Barley	大麦
+food/barley_grain	Barley Grain	大麦粒
+food/barley_flour	Barley Flour	大麦面粉
+food/barley_dough	Barley Dough	大麦面团
+food/barley_bread	Barley Bread	大麦面包
+food/barley_bread_sandwich	Barley Bread Sandwich	大麦面包三明治
+food/barley_bread_jam_sandwich	Barley Bread Jam Sandwich	大麦面包果酱三明治
+food/oat	Oat	燕麦
+food/oat_grain	Oat Grain	燕麦粒
+food/oat_flour	Oat Flour	燕麦面粉
+food/oat_dough	Oat Dough	燕麦面团
+food/oat_bread	Oat Bread	燕麦面包
+food/oat_bread_sandwich	Oat Bread Sandwich	燕麦面包三明治
+food/oat_bread_jam_sandwich	Oat Bread Jam Sandwich	燕麦面包果酱三明治
+food/rye	Rye	黑麦
+food/rye_grain	Rye Grain	黑麦粒
+food/rye_flour	Rye Flour	黑麦面粉
+food/rye_dough	Rye Dough	黑麦面团
+food/rye_bread	Rye Bread	黑麦面包
+food/rye_bread_sandwich	Rye Bread Sandwich	黑麦面包三明治
+food/rye_bread_jam_sandwich	Rye Bread Jam Sandwich	黑麦面包果酱三明治
+food/wheat	Wheat	小麦
+food/wheat_grain	Wheat Grain	小麦粒
+food/wheat_flour	Wheat Flour	小麦面粉
+food/wheat_dough	Wheat Dough	小麦面团
+food/wheat_bread	Wheat Bread	小麦面包
+food/wheat_bread_sandwich	Wheat Bread Sandwich	小麦面包三明治
+food/wheat_bread_jam_sandwich	Wheat Bread Jam Sandwich	小麦面包果酱三明治
+food/rice	Rice	大米
+food/rice_grain	Rice Grain	大米粒
+food/rice_flour	Rice Flour	大米面粉
+food/rice_dough	Rice Dough	大米面团
+food/rice_bread	Rice Bread	大米面包
+food/rice_bread_sandwich	Rice Bread Sandwich	大米面包三明治
+food/rice_bread_jam_sandwich	Rice Bread Jam Sandwich	大米面包果酱三明治
+food/cooked_rice	Cooked Rice	熟大米
+food/maize	Maize	玉米
+food/maize_grain	Maize Grain	玉米粒
+food/maize_flour	Maize Flour	玉米面粉
+food/maize_dough	Maize Dough	玉米面团
+food/maize_bread	Maize Bread	玉米面包
+food/maize_bread_sandwich	Maize Bread Sandwich	玉米面包三明治
+food/maize_bread_jam_sandwich	Maize Bread Jam Sandwich	玉米面包果酱三明治
+food/beet	Beet	甜菜
+food/cabbage	Cabbage	卷心菜
+food/carrot	Carrot	胡萝卜
+food/garlic	Garlic	大蒜
+food/green_bean	Green Bean	绿豆
+food/green_bell_pepper	Green Bell Pepper	绿甜椒
+food/onion	Onion	洋葱
+food/potato	Potato	马铃薯
+food/baked_potato	Baked Potato	烤马铃薯
+food/red_bell_pepper	Red Bell Pepper	红甜椒
+food/yellow_bell_pepper	Yellow Bell Pepper	黄甜椒
+food/soybean	Soybean	大豆
+food/squash	Squash	西葫芦
+food/tomato	Tomato	番茄
+food/cassava	Cassava	木薯
+food/cooked_cassava	Cooked Cassava	熟木薯
+food/lentil	Lentil	小扁豆
+food/cooked_lentil	Cooked Lentil	熟小扁豆
+food/peanut	Peanut	花生
+food/radish	Radish	小萝卜
+food/sugarcane	Sugarcane	甘蔗
+food/blackberry	Blackberry	黑莓
+food/raspberry	Raspberry	树莓
+food/blueberry	Blueberry	蓝莓
+food/elderberry	Elderberry	接骨木莓
+food/snowberry	Snowberry	雪莓
+food/bunchberry	Bunchberry	御膳橘
+food/gooseberry	Gooseberry	鹅莓
+food/cloudberry	Cloudberry	云莓
+food/strawberry	Strawberry	草莓
+food/wintergreen_berry	Wintergreen Berry	冬青莓
+food/cranberry	Cranberry	蔓越莓
+food/banana	Banana	香蕉
+food/cherry	Cherry	樱桃
+food/green_apple	Green Apple	青苹果
+food/red_apple	Red Apple	红苹果
+food/lemon	Lemon	柠檬
+food/olive	Olive	橄榄
+food/orange	Orange	橙子
+food/peach	Peach	桃子
+food/plum	Plum	李子
+food/melon_slice	Melon Slice	西瓜片
+food/pumpkin_chunks	Pumpkin Chunks	南瓜块
+food/cooked_egg	Fried Egg	煎蛋
+food/boiled_egg	Boiled Egg	水煮蛋
+food/cheese_curd	Cheese Curd	生奶酪
+food/cheese	Cheese	奶酪
+food/fresh_seaweed	Fresh Seaweed	新鲜海藻
+food/dried_seaweed	Dried Seaweed	干海藻
+food/grain_soup	Wholesome Soup	谷物汤
+food/fruit_soup	Tasty Soup	水果汤
+food/vegetables_soup	Filling Soup	蔬菜汤
+food/protein_soup	Hearty Soup	肉汤
+food/dairy_soup	Creamy Soup	奶油汤
+food/grain_salad	Crunchy Salad	谷物沙拉
+food/fruit_salad	Sweet Salad	水果沙拉
+food/vegetables_salad	Healthy Salad	蔬菜沙拉
+food/protein_salad	Flavorful Salad	肉类沙拉
+food/dairy_salad	Cheesy Salad	奶酪沙拉
+food/jam/blackberry	Blackberry Jam	黑莓果酱
+food/jam/raspberry	Raspberry Jam	树莓果酱
+food/jam/blueberry	Blueberry Jam	蓝莓果酱
+food/jam/elderberry	Elderberry Jam	接骨木莓果酱
+food/jam/snowberry	Snowberry Jam	雪莓果酱
+food/jam/bunchberry	Bunchberry Jam	御膳橘果酱
+food/jam/gooseberry	Gooseberry Jam	鹅莓果酱
+food/jam/cloudberry	Cloudberry Jam	云莓果酱
+food/jam/strawberry	Strawberry Jam	草莓果酱
+food/jam/wintergreen_berry	Wintergreen Berry Jam	冬青莓果酱
+food/jam/cranberry	Cranberry Jam	蔓越莓果酱
+food/jam/banana	Banana Jam	香蕉果酱
+food/jam/cherry	Cherry Jam	樱桃果酱
+food/jam/green_apple	Green Apple Jam	青苹果果酱
+food/jam/red_apple	Red Apple Jam	红苹果果酱
+food/jam/lemon	Lemon Jam	柠檬果酱
+food/jam/olive	Olive Jam	橄榄果酱
+food/jam/orange	Orange Jam	橙子果酱
+food/jam/peach	Peach Jam	桃子果酱
+food/jam/plum	Plum Jam	李子果酱
+food/jam/melon_slice	Melon Jam	西瓜果酱
+food/jam/peanut	Peanut Butter	花生酱
+rennet	Rennet	凝乳酶
+seeds/barley	Barley Seeds	大麦种子
+seeds/oat	Oat Seeds	燕麦种子
+seeds/rye	Rye Seeds	黑麦种子
+seeds/wheat	Wheat Seeds	小麦种子
+seeds/rice	Rice Seeds	水稻种子
+seeds/maize	Maize Seeds	玉米种子
+seeds/beet	Beet Seeds	甜菜种子
+seeds/cabbage	Cabbage Seeds	卷心菜种子
+seeds/carrot	Carrot Seeds	胡萝卜种子
+seeds/garlic	Garlic Seeds	大蒜种子
+seeds/onion	Onion Seeds	洋葱种子
+seeds/potato	Potato Seeds	马铃薯种子
+seeds/green_bean	Green Bean Seeds	绿豆种子
+seeds/lentil	Lentil Seeds	小扁豆种子
+seeds/soybean	Soybean Seeds	大豆种子
+seeds/peanut	Peanut Seeds	花生种子
+seeds/radish	Radish Seeds	小萝卜种子
+seeds/cassava	Cassava Seeds	木薯种子
+seeds/squash	Squash Seeds	西葫芦种子
+seeds/tomato	Tomato Seeds	番茄种子
+seeds/red_bell_pepper	Red Bell Pepper Seeds	红甜椒种子
+seeds/yellow_bell_pepper	Yellow Bell Pepper Seeds	黄甜椒种子
+seeds/pumpkin	Pumpkin Seeds	南瓜种子
+seeds/melon	Melon Seeds	西瓜种子
+seeds/sugarcane	Sugarcane Seeds	甘蔗种子

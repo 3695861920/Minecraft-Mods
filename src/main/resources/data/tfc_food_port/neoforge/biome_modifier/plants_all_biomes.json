@@ -1,0 +1,27 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "tfc_food_port:patch_blackberry_bush",
+    "tfc_food_port:patch_raspberry_bush",
+    "tfc_food_port:patch_blueberry_bush",
+    "tfc_food_port:patch_elderberry_bush",
+    "tfc_food_port:patch_gooseberry_bush",
+    "tfc_food_port:patch_bunchberry_bush",
+    "tfc_food_port:patch_strawberry_bush",
+    "tfc_food_port:patch_snowberry_bush",
+    "tfc_food_port:patch_cloudberry_bush",
+    "tfc_food_port:patch_wintergreen_berry_bush",
+    "tfc_food_port:patch_cranberry_bush",
+    "tfc_food_port:trees_banana",
+    "tfc_food_port:trees_orange",
+    "tfc_food_port:trees_lemon",
+    "tfc_food_port:trees_peach",
+    "tfc_food_port:trees_cherry",
+    "tfc_food_port:trees_olive",
+    "tfc_food_port:trees_green_apple",
+    "tfc_food_port:trees_red_apple",
+    "tfc_food_port:trees_plum"
+  ],
+  "step": "vegetal_decoration"
+}

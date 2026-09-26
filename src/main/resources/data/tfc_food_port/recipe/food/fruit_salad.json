@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "#c:foods/fruit",
+    "#c:foods/fruit",
+    "minecraft:sugar"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/fruit_salad"
+  }
+}

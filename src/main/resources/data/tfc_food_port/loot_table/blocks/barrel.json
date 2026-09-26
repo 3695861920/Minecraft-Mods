@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:barrel",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": [
+                "tfc_food_port:barrel_fluid"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "tfc_food_port:blocks/barrel"
+}

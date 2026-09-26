@@ -1,0 +1,25 @@
+{
+  "values": [
+    "tfc_food_port:food/blackberry",
+    "tfc_food_port:food/raspberry",
+    "tfc_food_port:food/blueberry",
+    "tfc_food_port:food/elderberry",
+    "tfc_food_port:food/snowberry",
+    "tfc_food_port:food/bunchberry",
+    "tfc_food_port:food/gooseberry",
+    "tfc_food_port:food/cloudberry",
+    "tfc_food_port:food/strawberry",
+    "tfc_food_port:food/wintergreen_berry",
+    "tfc_food_port:food/cranberry",
+    "tfc_food_port:food/banana",
+    "tfc_food_port:food/cherry",
+    "tfc_food_port:food/green_apple",
+    "tfc_food_port:food/red_apple",
+    "tfc_food_port:food/lemon",
+    "tfc_food_port:food/olive",
+    "tfc_food_port:food/orange",
+    "tfc_food_port:food/peach",
+    "tfc_food_port:food/plum",
+    "tfc_food_port:food/melon_slice"
+  ]
+}

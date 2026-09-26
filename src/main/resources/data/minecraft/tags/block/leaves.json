@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "tfc_food_port:plant/banana_leaves",
+    "tfc_food_port:plant/orange_leaves",
+    "tfc_food_port:plant/lemon_leaves",
+    "tfc_food_port:plant/peach_leaves",
+    "tfc_food_port:plant/cherry_leaves",
+    "tfc_food_port:plant/olive_leaves",
+    "tfc_food_port:plant/green_apple_leaves",
+    "tfc_food_port:plant/red_apple_leaves",
+    "tfc_food_port:plant/plum_leaves"
+  ]
+}

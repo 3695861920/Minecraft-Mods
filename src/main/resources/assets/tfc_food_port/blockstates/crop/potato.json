@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tfc_food_port:block/crop/potato_0"
+    },
+    "age=1": {
+      "model": "tfc_food_port:block/crop/potato_1"
+    },
+    "age=2": {
+      "model": "tfc_food_port:block/crop/potato_2"
+    },
+    "age=3": {
+      "model": "tfc_food_port:block/crop/potato_3"
+    },
+    "age=4": {
+      "model": "tfc_food_port:block/crop/potato_4"
+    },
+    "age=5": {
+      "model": "tfc_food_port:block/crop/potato_5"
+    },
+    "age=6": {
+      "model": "tfc_food_port:block/crop/potato_6"
+    },
+    "age=7": {
+      "model": "tfc_food_port:block/crop/potato_6"
+    }
+  }
+}

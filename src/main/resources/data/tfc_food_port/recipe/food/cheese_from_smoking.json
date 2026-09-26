@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "cookingtime": 100,
+  "experience": 0.35,
+  "ingredient": "tfc_food_port:food/cheese_curd",
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/cheese"
+  }
+}

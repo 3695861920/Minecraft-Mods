@@ -1,0 +1,76 @@
+itemGroup.tfc_food_port.food	TFC Food Port	群峦食物移植
+block.tfc_food_port.barrel	Barrel	大桶
+item.tfc_food_port.barrel	Barrel	大桶
+block.tfc_food_port.crop.barley	Barley	大麦
+block.tfc_food_port.crop.oat	Oat	燕麦
+block.tfc_food_port.crop.rye	Rye	黑麦
+block.tfc_food_port.crop.wheat	Wheat	小麦
+block.tfc_food_port.crop.rice	Rice	水稻
+block.tfc_food_port.crop.maize	Maize	玉米
+block.tfc_food_port.crop.beet	Beet	甜菜
+block.tfc_food_port.crop.cabbage	Cabbage	卷心菜
+block.tfc_food_port.crop.carrot	Carrot	胡萝卜
+block.tfc_food_port.crop.garlic	Garlic	大蒜
+block.tfc_food_port.crop.onion	Onion	洋葱
+block.tfc_food_port.crop.potato	Potato	马铃薯
+block.tfc_food_port.crop.green_bean	Green Bean	绿豆
+block.tfc_food_port.crop.lentil	Lentil	小扁豆
+block.tfc_food_port.crop.soybean	Soybean	大豆
+block.tfc_food_port.crop.peanut	Peanut	花生
+block.tfc_food_port.crop.radish	Radish	小萝卜
+block.tfc_food_port.crop.cassava	Cassava	木薯
+block.tfc_food_port.crop.squash	Squash	西葫芦
+block.tfc_food_port.crop.tomato	Tomato	番茄
+block.tfc_food_port.crop.red_bell_pepper	Red Bell Pepper	红甜椒
+block.tfc_food_port.crop.yellow_bell_pepper	Yellow Bell Pepper	黄甜椒
+block.tfc_food_port.crop.pumpkin	Pumpkin	南瓜
+block.tfc_food_port.crop.melon	Melon	西瓜
+block.tfc_food_port.crop.sugarcane	Sugarcane	甘蔗
+block.tfc_food_port.plant.blackberry_bush	Blackberry Bush	黑莓灌木
+block.tfc_food_port.plant.raspberry_bush	Raspberry Bush	树莓灌木
+block.tfc_food_port.plant.blueberry_bush	Blueberry Bush	蓝莓灌木
+block.tfc_food_port.plant.elderberry_bush	Elderberry Bush	接骨木灌木
+block.tfc_food_port.plant.gooseberry_bush	Gooseberry Bush	鹅莓灌木
+block.tfc_food_port.plant.bunchberry_bush	Bunchberry Bush	御膳橘灌木
+block.tfc_food_port.plant.strawberry_bush	Strawberry Bush	草莓灌木
+block.tfc_food_port.plant.snowberry_bush	Snowberry Bush	雪莓灌木
+block.tfc_food_port.plant.cloudberry_bush	Cloudberry Bush	云莓灌木
+block.tfc_food_port.plant.wintergreen_berry_bush	Wintergreen Berry Bush	冬青莓灌木
+block.tfc_food_port.plant.cranberry_bush	Cranberry Bush	蔓越莓灌木
+block.tfc_food_port.plant.banana_bush	Banana Bush	香蕉灌木
+block.tfc_food_port.plant.orange_bush	Orange Bush	橙子灌木
+block.tfc_food_port.plant.lemon_bush	Lemon Bush	柠檬灌木
+block.tfc_food_port.plant.peach_bush	Peach Bush	桃子灌木
+block.tfc_food_port.plant.cherry_bush	Cherry Bush	樱桃灌木
+block.tfc_food_port.plant.olive_bush	Olive Bush	橄榄灌木
+block.tfc_food_port.plant.green_apple_bush	Green Apple Bush	青苹果灌木
+block.tfc_food_port.plant.red_apple_bush	Red Apple Bush	红苹果灌木
+block.tfc_food_port.plant.plum_bush	Plum Bush	李子灌木
+block.tfc_food_port.plant.banana_sapling	Banana Sapling	香蕉树苗
+block.tfc_food_port.plant.orange_sapling	Orange Sapling	橙子树苗
+block.tfc_food_port.plant.lemon_sapling	Lemon Sapling	柠檬树苗
+block.tfc_food_port.plant.peach_sapling	Peach Sapling	桃子树苗
+block.tfc_food_port.plant.cherry_sapling	Cherry Sapling	樱桃树苗
+block.tfc_food_port.plant.olive_sapling	Olive Sapling	橄榄树苗
+block.tfc_food_port.plant.green_apple_sapling	Green Apple Sapling	青苹果树苗
+block.tfc_food_port.plant.red_apple_sapling	Red Apple Sapling	红苹果树苗
+block.tfc_food_port.plant.plum_sapling	Plum Sapling	李子树苗
+block.tfc_food_port.plant.banana_leaves	Banana Leaves	香蕉树叶
+block.tfc_food_port.plant.orange_leaves	Orange Leaves	橙子树叶
+block.tfc_food_port.plant.lemon_leaves	Lemon Leaves	柠檬树叶
+block.tfc_food_port.plant.peach_leaves	Peach Leaves	桃子树叶
+block.tfc_food_port.plant.cherry_leaves	Cherry Leaves	樱桃树叶
+block.tfc_food_port.plant.olive_leaves	Olive Leaves	橄榄树叶
+block.tfc_food_port.plant.green_apple_leaves	Green Apple Leaves	青苹果树叶
+block.tfc_food_port.plant.red_apple_leaves	Red Apple Leaves	红苹果树叶
+block.tfc_food_port.plant.plum_leaves	Plum Leaves	李子树叶
+block.tfc_food_port.plant.banana_bunch	Banana Bunch	香蕉串
+item.tfc_food_port.plant.banana_leaves	Banana Leaves	香蕉树叶
+item.tfc_food_port.plant.orange_leaves	Orange Leaves	橙子树叶
+item.tfc_food_port.plant.lemon_leaves	Lemon Leaves	柠檬树叶
+item.tfc_food_port.plant.peach_leaves	Peach Leaves	桃子树叶
+item.tfc_food_port.plant.cherry_leaves	Cherry Leaves	樱桃树叶
+item.tfc_food_port.plant.olive_leaves	Olive Leaves	橄榄树叶
+item.tfc_food_port.plant.green_apple_leaves	Green Apple Leaves	青苹果树叶
+item.tfc_food_port.plant.red_apple_leaves	Red Apple Leaves	红苹果树叶
+item.tfc_food_port.plant.plum_leaves	Plum Leaves	李子树叶

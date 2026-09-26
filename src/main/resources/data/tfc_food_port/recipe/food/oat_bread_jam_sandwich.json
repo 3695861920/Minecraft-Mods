@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "tfc_food_port_jam_sandwich",
+  "ingredients": [
+    "tfc_food_port:food/oat_bread",
+    "#tfc_food_port:jams",
+    "#c:foods/cooked_meat"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/oat_bread_jam_sandwich"
+  }
+}

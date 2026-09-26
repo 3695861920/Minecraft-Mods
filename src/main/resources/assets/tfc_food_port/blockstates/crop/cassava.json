@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tfc_food_port:block/crop/cassava_0"
+    },
+    "age=1": {
+      "model": "tfc_food_port:block/crop/cassava_1"
+    },
+    "age=2": {
+      "model": "tfc_food_port:block/crop/cassava_2"
+    },
+    "age=3": {
+      "model": "tfc_food_port:block/crop/cassava_3"
+    },
+    "age=4": {
+      "model": "tfc_food_port:block/crop/cassava_4"
+    },
+    "age=5": {
+      "model": "tfc_food_port:block/crop/cassava_5"
+    },
+    "age=6": {
+      "model": "tfc_food_port:block/crop/cassava_5"
+    },
+    "age=7": {
+      "model": "tfc_food_port:block/crop/cassava_5"
+    }
+  }
+}

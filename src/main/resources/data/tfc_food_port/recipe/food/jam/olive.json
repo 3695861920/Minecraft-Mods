@@ -1,0 +1,14 @@
+{
+  "type": "farmersdelight:cooking",
+  "experience": 0.35,
+  "cookingtime": 500,
+  "ingredients": [
+    "tfc_food_port:food/olive",
+    "tfc_food_port:food/olive",
+    "minecraft:sugar"
+  ],
+  "result": {
+    "count": 2,
+    "id": "tfc_food_port:food/jam/olive"
+  }
+}

@@ -1,0 +1,36 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "tfc_food_port"
+description = '''
+A heavily simplified port of TerraFirmaCraft's food items, crops, bushes and barrel.
+
+Nutrition, decay and water are removed. TFC's custom food-processing blocks (pots, stoves, cheese cloth, brine)
+are replaced by Farmer's Delight cooking and cutting, and by vanilla crafting.
+'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neo_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "farmersdelight"
+type = "required"
+versionRange = "[1.3.0,)"
+ordering = "AFTER"
+side = "BOTH"

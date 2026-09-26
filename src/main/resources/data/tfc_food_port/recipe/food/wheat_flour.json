@@ -1,0 +1,24 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    "tfc_food_port:food/wheat_grain"
+  ],
+  "result": [
+    {
+      "item": {
+        "count": 1,
+        "id": "tfc_food_port:food/wheat_flour"
+      }
+    }
+  ],
+  "tool":     {
+      "neoforge:ingredient_type": "neoforge:compound",
+      "children": [
+        {
+          "neoforge:ingredient_type": "farmersdelight:item_ability",
+          "action": "knife_dig"
+        },
+        "#c:tools/knife"
+      ]
+    }
+}

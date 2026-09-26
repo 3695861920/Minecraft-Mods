@@ -1,0 +1,15 @@
+{
+  "values": [
+    "tfc_food_port:food/blackberry",
+    "tfc_food_port:food/raspberry",
+    "tfc_food_port:food/blueberry",
+    "tfc_food_port:food/elderberry",
+    "tfc_food_port:food/snowberry",
+    "tfc_food_port:food/bunchberry",
+    "tfc_food_port:food/gooseberry",
+    "tfc_food_port:food/cloudberry",
+    "tfc_food_port:food/strawberry",
+    "tfc_food_port:food/wintergreen_berry",
+    "tfc_food_port:food/cranberry"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "farmersdelight:cooking",
+  "experience": 0.35,
+  "cookingtime": 200,
+  "ingredients": [
+    "minecraft:egg"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/boiled_egg"
+  }
+}

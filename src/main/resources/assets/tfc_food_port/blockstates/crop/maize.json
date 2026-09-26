@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tfc_food_port:block/crop/maize_0"
+    },
+    "age=1": {
+      "model": "tfc_food_port:block/crop/maize_1"
+    },
+    "age=2": {
+      "model": "tfc_food_port:block/crop/maize_2"
+    },
+    "age=3": {
+      "model": "tfc_food_port:block/crop/maize_2"
+    },
+    "age=4": {
+      "model": "tfc_food_port:block/crop/maize_2"
+    },
+    "age=5": {
+      "model": "tfc_food_port:block/crop/maize_2"
+    },
+    "age=6": {
+      "model": "tfc_food_port:block/crop/maize_2"
+    },
+    "age=7": {
+      "model": "tfc_food_port:block/crop/maize_2"
+    }
+  }
+}

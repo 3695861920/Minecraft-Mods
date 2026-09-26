@@ -1,0 +1,9 @@
+{
+  "values": [
+    "tfc_food_port:food/grain_soup",
+    "tfc_food_port:food/fruit_soup",
+    "tfc_food_port:food/vegetables_soup",
+    "tfc_food_port:food/protein_soup",
+    "tfc_food_port:food/dairy_soup"
+  ]
+}

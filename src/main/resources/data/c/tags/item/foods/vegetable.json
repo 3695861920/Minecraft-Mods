@@ -1,0 +1,24 @@
+{
+  "values": [
+    "tfc_food_port:food/beet",
+    "tfc_food_port:food/cabbage",
+    "tfc_food_port:food/carrot",
+    "tfc_food_port:food/garlic",
+    "tfc_food_port:food/green_bean",
+    "tfc_food_port:food/green_bell_pepper",
+    "tfc_food_port:food/red_bell_pepper",
+    "tfc_food_port:food/yellow_bell_pepper",
+    "tfc_food_port:food/onion",
+    "tfc_food_port:food/potato",
+    "tfc_food_port:food/baked_potato",
+    "tfc_food_port:food/soybean",
+    "tfc_food_port:food/squash",
+    "tfc_food_port:food/tomato",
+    "tfc_food_port:food/cassava",
+    "tfc_food_port:food/cooked_cassava",
+    "tfc_food_port:food/lentil",
+    "tfc_food_port:food/cooked_lentil",
+    "tfc_food_port:food/radish",
+    "tfc_food_port:food/pumpkin_chunks"
+  ]
+}

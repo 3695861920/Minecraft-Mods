@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "tfc_food_port_sandwich",
+  "ingredients": [
+    "tfc_food_port:food/barley_bread",
+    "#c:foods/vegetable",
+    "#c:foods/cooked_meat"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/barley_bread_sandwich"
+  }
+}

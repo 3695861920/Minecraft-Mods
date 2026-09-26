@@ -1,0 +1,6 @@
+{
+  "values": [
+    "tfc_food_port:food/cooked_egg",
+    "tfc_food_port:food/boiled_egg"
+  ]
+}

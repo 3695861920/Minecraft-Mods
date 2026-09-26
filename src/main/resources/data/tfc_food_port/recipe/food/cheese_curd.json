@@ -1,0 +1,13 @@
+{
+  "type": "farmersdelight:cooking",
+  "experience": 0.35,
+  "cookingtime": 600,
+  "ingredients": [
+    "minecraft:milk_bucket",
+    "tfc_food_port:rennet"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/cheese_curd"
+  }
+}

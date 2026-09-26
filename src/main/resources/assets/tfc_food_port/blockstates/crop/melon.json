@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tfc_food_port:block/crop/melon_0"
+    },
+    "age=1": {
+      "model": "tfc_food_port:block/crop/melon_1"
+    },
+    "age=2": {
+      "model": "tfc_food_port:block/crop/melon_2"
+    },
+    "age=3": {
+      "model": "tfc_food_port:block/crop/melon_3"
+    },
+    "age=4": {
+      "model": "tfc_food_port:block/crop/melon_4"
+    },
+    "age=5": {
+      "model": "tfc_food_port:block/crop/melon_5"
+    },
+    "age=6": {
+      "model": "tfc_food_port:block/crop/melon_6"
+    },
+    "age=7": {
+      "model": "tfc_food_port:block/crop/melon_7"
+    }
+  }
+}

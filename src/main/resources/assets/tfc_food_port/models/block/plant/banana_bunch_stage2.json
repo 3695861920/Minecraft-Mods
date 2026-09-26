@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cocoa_stage2",
+  "textures": {
+    "cocoa": "tfc_food_port:block/plant/banana_bunch_stage2",
+    "particle": "tfc_food_port:block/plant/banana_bunch_stage2"
+  }
+}

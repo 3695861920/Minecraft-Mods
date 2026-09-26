@@ -1,0 +1,137 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/barley",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/oat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/rye",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/wheat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/rice",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/maize",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/beet",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/cabbage",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/carrot",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/garlic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/onion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/potato",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/green_bean",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/lentil",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/soybean",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/peanut",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/radish",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/cassava",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/squash",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/tomato",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/red_bell_pepper",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/yellow_bell_pepper",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/pumpkin",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/melon",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc_food_port:seeds/sugarcane",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "random_sequence": "tfc_food_port:grass_seeds"
+}

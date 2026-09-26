@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tfc_food_port:block/crop/barley_0"
+    },
+    "age=1": {
+      "model": "tfc_food_port:block/crop/barley_1"
+    },
+    "age=2": {
+      "model": "tfc_food_port:block/crop/barley_2"
+    },
+    "age=3": {
+      "model": "tfc_food_port:block/crop/barley_3"
+    },
+    "age=4": {
+      "model": "tfc_food_port:block/crop/barley_4"
+    },
+    "age=5": {
+      "model": "tfc_food_port:block/crop/barley_5"
+    },
+    "age=6": {
+      "model": "tfc_food_port:block/crop/barley_6"
+    },
+    "age=7": {
+      "model": "tfc_food_port:block/crop/barley_7"
+    }
+  }
+}

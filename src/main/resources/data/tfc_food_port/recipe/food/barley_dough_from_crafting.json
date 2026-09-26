@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "tfc_food_port_dough",
+  "ingredients": [
+    "tfc_food_port:food/barley_flour",
+    "minecraft:water_bucket"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfc_food_port:food/barley_dough"
+  }
+}
