@@ -1,9 +1,6 @@
 package com.tfc_food_port.common.block;
 
 import com.mojang.serialization.MapCodec;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -11,18 +8,18 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.Nullable;
@@ -42,11 +39,34 @@ public class TFCPalmFruitBlock extends HorizontalDirectionalBlock implements Bon
     public static final int MAX_AGE = 2;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_2;
 
-    /** Same geometry as a cocoa pod, widening as it ripens, so it reads as hanging off the log. */
-    private static final List<Map<Direction, VoxelShape>> SHAPES = IntStream.rangeClosed(0, MAX_AGE)
-        .mapToObj(age -> Shapes.rotateHorizontal(
-            Block.column(4 + age * 2, 7 - age * 2, 12.0).move(0.0, 0.0, (age - 5) / 16.0).optimize()))
-        .toList();
+    /**
+     * Same geometry as a cocoa pod, widening as it ripens, so it reads as hanging off the log.
+     *
+     * These are vanilla cocoa's own four arrays, copied literally. 1.21.1 has no shape rotation helper - no
+     * {@code Shapes.rotateHorizontal} and no {@code Block.column} - so the four facings are four hand written boxes
+     * rather than one box rotated at load time. Copying the numbers from {@code CocoaBlock} also guarantees the two
+     * pods line up visually.
+     */
+    private static final VoxelShape[] NORTH_SHAPES = new VoxelShape[] {
+        Block.box(6.0, 7.0, 1.0, 10.0, 12.0, 5.0),
+        Block.box(5.0, 5.0, 1.0, 11.0, 12.0, 7.0),
+        Block.box(4.0, 3.0, 1.0, 12.0, 12.0, 9.0)
+    };
+    private static final VoxelShape[] SOUTH_SHAPES = new VoxelShape[] {
+        Block.box(6.0, 7.0, 11.0, 10.0, 12.0, 15.0),
+        Block.box(5.0, 5.0, 9.0, 11.0, 12.0, 15.0),
+        Block.box(4.0, 3.0, 7.0, 12.0, 12.0, 15.0)
+    };
+    private static final VoxelShape[] WEST_SHAPES = new VoxelShape[] {
+        Block.box(1.0, 7.0, 6.0, 5.0, 12.0, 10.0),
+        Block.box(1.0, 5.0, 5.0, 7.0, 12.0, 11.0),
+        Block.box(1.0, 3.0, 4.0, 9.0, 12.0, 12.0)
+    };
+    private static final VoxelShape[] EAST_SHAPES = new VoxelShape[] {
+        Block.box(11.0, 7.0, 6.0, 15.0, 12.0, 10.0),
+        Block.box(9.0, 5.0, 5.0, 15.0, 12.0, 11.0),
+        Block.box(7.0, 3.0, 4.0, 15.0, 12.0, 12.0)
+    };
 
     public TFCPalmFruitBlock(BlockBehaviour.Properties properties)
     {
@@ -113,7 +133,15 @@ public class TFCPalmFruitBlock extends HorizontalDirectionalBlock implements Bon
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
     {
-        return SHAPES.get(state.getValue(AGE)).get(state.getValue(FACING));
+        final int age = Math.min(state.getValue(AGE), MAX_AGE);
+
+        return switch (state.getValue(FACING))
+        {
+            case SOUTH -> SOUTH_SHAPES[age];
+            case WEST -> WEST_SHAPES[age];
+            case EAST -> EAST_SHAPES[age];
+            default -> NORTH_SHAPES[age];
+        };
     }
 
     @Override
@@ -134,15 +162,21 @@ public class TFCPalmFruitBlock extends HorizontalDirectionalBlock implements Bon
         return null;
     }
 
+    /**
+     * Re-checks support on any neighbour change, and drops off when the leaves go away - which is what vanilla
+     * cocoa does when its log is removed.
+     *
+     * 1.21.1 declares this as the classic six argument {@code updateShape(BlockState, Direction, BlockState,
+     * LevelAccessor, BlockPos, BlockPos)}. The later versions replaced it with a wider form that also receives the
+     * scheduled tick access and a random source, which is the only reason this signature differs from 26.1.2.
+     */
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos,
-                                     Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random)
+    protected BlockState updateShape(BlockState state, Direction directionToNeighbour, BlockState neighbourState,
+                                     LevelAccessor level, BlockPos pos, BlockPos neighbourPos)
     {
-        // Re-check on any neighbour change, not just the facing one, because support can come from any side.
-        // Dropping off when the leaves are removed is what vanilla cocoa does when its log goes away.
         return !state.canSurvive(level, pos)
             ? Blocks.AIR.defaultBlockState()
-            : super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
+            : super.updateShape(state, directionToNeighbour, neighbourState, level, pos, neighbourPos);
     }
 
     @Override

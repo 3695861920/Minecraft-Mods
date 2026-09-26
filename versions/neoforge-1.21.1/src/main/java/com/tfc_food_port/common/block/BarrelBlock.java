@@ -3,7 +3,7 @@ package com.tfc_food_port.common.block;
 import com.tfc_food_port.common.blockentity.BarrelBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -16,8 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
-import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidUtil;
 
 /**
  * The barrel: a plain block with no block state properties, backed by a {@link BarrelBlockEntity} fluid tank.
@@ -30,6 +29,11 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
  *     <li>filled container + empty or matching barrel -&gt; put in a bucket's worth, or whatever still fits</li>
  *     <li>anything else -&gt; no reaction</li>
  * </ul>
+ *
+ * Two things differ from 26.1.2 here. The item capability is {@code Capabilities.FluidHandler.ITEM} rather than
+ * {@code Capabilities.Fluid.ITEM}, and it is reached through {@code stack.getCapability(...)} - the 1.21.1 form -
+ * rather than through the transfer API's {@code ItemAccess.forStack(...)}. The interaction call is otherwise the
+ * same, minus the transaction 26.1.2 requires.
  */
 public class BarrelBlock extends Block implements EntityBlock
 {
@@ -54,31 +58,33 @@ public class BarrelBlock extends Block implements EntityBlock
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
     {
         if (!(level.getBlockEntity(pos) instanceof BarrelBlockEntity))
         {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
         if (!isFluidContainer(stack))
         {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
         if (level.isClientSide())
         {
             // The transfer is server authoritative; the client only needs to know that the click was used.
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
 
-        return FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection(), null)
-            ? InteractionResult.SUCCESS_SERVER
-            : InteractionResult.TRY_WITH_EMPTY_HAND;
+        // 1.21.1 has no transaction to thread through, and its InteractionResult is an enum without the
+        // server/client split 26.1.2 introduced, so a handled interaction is simply SUCCESS.
+        return FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection())
+            ? ItemInteractionResult.SUCCESS
+            : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     private static boolean isFluidContainer(ItemStack stack)
     {
-        return !stack.isEmpty() && ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+        return !stack.isEmpty() && stack.getCapability(Capabilities.FluidHandler.ITEM) != null;
     }
 }

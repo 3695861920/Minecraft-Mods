@@ -35,19 +35,24 @@ public final class TFCBlocks
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
         DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, TFCFoodPort.MOD_ID);
 
+    // 1.21.1's registerBlock takes the properties INSTANCE as its third argument; the later API takes a supplier.
+    // That is the whole reason every call site below passes a finished properties object rather than a method
+    // reference to a builder.
     public static final DeferredBlock<BarrelBlock> BARREL = BLOCKS.registerBlock(
         "barrel",
         BarrelBlock::new,
-        properties -> properties
+        BlockBehaviour.Properties.of()
             .mapColor(MapColor.WOOD)
             .strength(2.0F)
             .sound(SoundType.WOOD)
             .ignitedByLava()
     );
 
+    // 1.21.1 has no two argument BlockEntityType constructor: it is (supplier, Set<Block>, dataType). The builder
+    // sets the set for you, and the data type is null for blocks that carry no stored-schema upgrades.
     public static final Supplier<BlockEntityType<BarrelBlockEntity>> BARREL_ENTITY = BLOCK_ENTITIES.register(
         "barrel",
-        () -> new BlockEntityType<BarrelBlockEntity>(BarrelBlockEntity::new, BARREL.get())
+        () -> BlockEntityType.Builder.of(BarrelBlockEntity::new, BARREL.get()).build(null)
     );
 
     private static final Map<Crop, DeferredBlock<TFCCropBlock>> CROPS = new EnumMap<>(Crop.class);
@@ -60,7 +65,7 @@ public final class TFCBlocks
     {
         for (final Crop crop : Crop.values())
         {
-            CROPS.put(crop, BLOCKS.registerBlock(crop.cropPath(), properties -> new TFCCropBlock(properties, crop), TFCBlocks::cropProperties));
+            CROPS.put(crop, BLOCKS.registerBlock(crop.cropPath(), properties -> new TFCCropBlock(properties, crop), cropProperties()));
         }
 
         for (final Berry berry : Berry.bushBerries())
@@ -71,7 +76,7 @@ public final class TFCBlocks
             BUSHES.put(berry, BLOCKS.registerBlock(
                 berry.bushPath(),
                 properties -> new TFCBerryBushBlock(TFCItems.get(berry.food()), properties),
-                TFCBlocks::bushProperties));
+                bushProperties()));
         }
 
         for (final Berry berry : Berry.treeFruits())
@@ -83,13 +88,13 @@ public final class TFCBlocks
             SAPLINGS.put(berry, BLOCKS.registerBlock(
                 berry.saplingPath(),
                 properties -> new SaplingBlock(berry.treeGrower(), properties),
-                TFCBlocks::saplingProperties));
+                saplingProperties()));
 
-            LEAVES.put(berry, BLOCKS.registerBlock(berry.leavesPath(), TFCLeavesBlock::new, TFCBlocks::leavesProperties));
+            LEAVES.put(berry, BLOCKS.registerBlock(berry.leavesPath(), TFCLeavesBlock::new, leavesProperties()));
 
             if (berry.hasTrunkFruit())
             {
-                TRUNK_FRUITS.put(berry, BLOCKS.registerBlock(berry.trunkFruitPath(), TFCPalmFruitBlock::new, TFCBlocks::trunkFruitProperties));
+                TRUNK_FRUITS.put(berry, BLOCKS.registerBlock(berry.trunkFruitPath(), TFCPalmFruitBlock::new, trunkFruitProperties()));
             }
         }
     }
@@ -137,7 +142,9 @@ public final class TFCBlocks
     {
         return BlockBehaviour.Properties.of()
             .mapColor(MapColor.PLANT)
-            .noCollision()
+            // 1.21.1 spells this noCollission. The double 's' was fixed in a later version, so this is a genuine
+            // difference between the two targets rather than a typo.
+            .noCollission()
             .randomTicks()
             .instabreak()
             .sound(SoundType.GRASS)
@@ -163,7 +170,7 @@ public final class TFCBlocks
     {
         return BlockBehaviour.Properties.of()
             .mapColor(MapColor.PLANT)
-            .noCollision()
+            .noCollission()
             .randomTicks()
             .instabreak()
             .sound(SoundType.CROP)
@@ -174,7 +181,7 @@ public final class TFCBlocks
     {
         return BlockBehaviour.Properties.of()
             .mapColor(MapColor.PLANT)
-            .noCollision()
+            .noCollission()
             .randomTicks()
             .strength(0.2F)
             .sound(SoundType.SWEET_BERRY_BUSH)

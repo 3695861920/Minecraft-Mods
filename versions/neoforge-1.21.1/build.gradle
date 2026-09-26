@@ -33,6 +33,20 @@ sourceSets.main.resources {
     exclude("src/generated/**/.cache") // datagen cache files
 }
 
+sourceSets.main.java {
+    // The game tests are still written against 26.1.2's test framework and are excluded while the port is in
+    // progress, so that the mod itself can be compiled and verified in the meantime.
+    //
+    // The two frameworks are genuinely different, not renamed. 26.1.2 registers tests as
+    // Consumer<GameTestHelper> values in the minecraft:test_function registry and builds instances of
+    // FunctionGameTestInstance from TestData, none of which exist on 1.21.1. Here a test is a method annotated
+    // @GameTest in a class annotated @GameTestHolder, discovered reflectively. Converting the 24 tests means
+    // rewriting their registration and adapting each body to the 1.21.1 data component and recipe APIs.
+    //
+    // DELETE THIS EXCLUDE in the same change that ports them.
+    exclude 'com/tfc_food_port/gametest/**'
+}
+
 repositories {
     maven {
         name = 'BlameJared'

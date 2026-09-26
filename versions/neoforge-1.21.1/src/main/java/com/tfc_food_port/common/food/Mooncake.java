@@ -28,28 +28,30 @@ import net.minecraft.world.effect.MobEffects;
  */
 public enum Mooncake implements StringRepresentable
 {
+    // 1.21.1 names its effects differently: what later became SPEED/HASTE/JUMP_BOOST/RESISTANCE/STRENGTH is still
+    // MOVEMENT_SPEED/DIG_SPEED/JUMP/DAMAGE_RESISTANCE/DAMAGE_BOOST here. The effects themselves are unchanged.
     BLACKBERRY("blackberry", MobEffects.NIGHT_VISION),
-    RASPBERRY("raspberry", MobEffects.SPEED),
+    RASPBERRY("raspberry", MobEffects.MOVEMENT_SPEED),
     BLUEBERRY("blueberry", MobEffects.WATER_BREATHING),
     ELDERBERRY("elderberry", MobEffects.REGENERATION),
     SNOWBERRY("snowberry", MobEffects.FIRE_RESISTANCE),
-    BUNCHBERRY("bunchberry", MobEffects.JUMP_BOOST),
-    GOOSEBERRY("gooseberry", MobEffects.HASTE),
+    BUNCHBERRY("bunchberry", MobEffects.JUMP),
+    GOOSEBERRY("gooseberry", MobEffects.DIG_SPEED),
     CLOUDBERRY("cloudberry", MobEffects.SLOW_FALLING),
     STRAWBERRY("strawberry", MobEffects.HEALTH_BOOST),
-    WINTERGREEN_BERRY("wintergreen_berry", MobEffects.RESISTANCE),
+    WINTERGREEN_BERRY("wintergreen_berry", MobEffects.DAMAGE_RESISTANCE),
     CRANBERRY("cranberry", MobEffects.ABSORPTION),
 
     BANANA("banana", MobEffects.LUCK),
     CHERRY("cherry", MobEffects.REGENERATION),
-    GREEN_APPLE("green_apple", MobEffects.HASTE),
+    GREEN_APPLE("green_apple", MobEffects.DIG_SPEED),
     RED_APPLE("red_apple", MobEffects.ABSORPTION),
-    LEMON("lemon", MobEffects.SPEED),
-    OLIVE("olive", MobEffects.RESISTANCE),
+    LEMON("lemon", MobEffects.MOVEMENT_SPEED),
+    OLIVE("olive", MobEffects.DAMAGE_RESISTANCE),
     ORANGE("orange", MobEffects.NIGHT_VISION),
-    PEACH("peach", MobEffects.JUMP_BOOST),
+    PEACH("peach", MobEffects.JUMP),
     PLUM("plum", MobEffects.WATER_BREATHING),
-    MELON_SLICE("melon_slice", MobEffects.STRENGTH),
+    MELON_SLICE("melon_slice", MobEffects.DAMAGE_BOOST),
     PEANUT("peanut", MobEffects.SLOW_FALLING),
 
     GOLD_APPLE("gold_apple"),
@@ -127,7 +129,7 @@ public enum Mooncake implements StringRepresentable
         {
             return List.of(
                 new MobEffectInstance(MobEffects.REGENERATION, 400, 1),
-                new MobEffectInstance(MobEffects.RESISTANCE, 6000, 0),
+                new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 6000, 0),
                 new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 6000, 0),
                 new MobEffectInstance(MobEffects.ABSORPTION, 2400, 3)
             );

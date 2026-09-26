@@ -77,20 +77,14 @@ public final class TFCItems
                     }
                     return new Item(properties);
                 },
-                properties -> {
-                    // Soups and salads are eaten out of a bowl and must hand it back: Farmer's Delight checks this
-                    // remainder against the container declared in the cooking pot recipe.
-                    if (food.isBowlFood())
-                    {
-                        properties = properties.usingConvertsTo(Items.BOWL);
-                    }
-                    // Plantable foods describe themselves as items, not as their block.
-                    if (plant != null)
-                    {
-                        properties = properties.useItemDescriptionPrefix();
-                    }
-                    return properties.food(FoodValues.properties(food), FoodValues.consumable());
-                }
+                // On 1.21.1 the food is a single component, and everything that describes eating it - the
+                // nutrition, the saturation, the bowl soups hand back, and the mooncake buffs - is inside it.
+                // The bowl remainder used to be set here on Item.Properties; it is a food property on this
+                // version, so FoodValues handles it. Item.Properties also has no useItemDescriptionPrefix
+                // before 1.21.4, so the plantable and bowl descriptions simply had no equivalent to call.
+                //
+                // The properties INSTANCE is the third argument on this version, not a supplier of one.
+                new Item.Properties().food(FoodValues.properties(food))
             ));
         }
 
@@ -100,8 +94,7 @@ public final class TFCItems
         {
             SEEDS.put(crop, ITEMS.registerItem(
                 crop.seedPath(),
-                properties -> new BlockItem(TFCBlocks.getCrop(crop).get(), properties),
-                properties -> properties.useItemDescriptionPrefix()
+                properties -> new BlockItem(TFCBlocks.getCrop(crop).get(), properties)
             ));
         }
 
@@ -114,8 +107,7 @@ public final class TFCItems
         {
             LEAVES.put(berry, ITEMS.registerItem(
                 berry.leavesPath(),
-                properties -> new BlockItem(TFCBlocks.getLeaves(berry).get(), properties),
-                properties -> properties.useBlockDescriptionPrefix()
+                properties -> new BlockItem(TFCBlocks.getLeaves(berry).get(), properties)
             ));
         }
 
@@ -126,15 +118,14 @@ public final class TFCItems
             MOONCAKES.put(mooncake, ITEMS.registerItem(
                 mooncake.path(),
                 properties -> new Item(properties),
-                properties -> properties.food(FoodValues.properties(mooncake), FoodValues.consumable(mooncake.effects()))
+                new Item.Properties().food(FoodValues.properties(mooncake))
             ));
 
             // The unbaked cake. Deliberately NOT edible: raw pastry with jam in it is an ingredient, and leaving it
             // inedible is the clearest signal that it belongs in a furnace.
             RAW_MOONCAKES.put(mooncake, ITEMS.registerItem(
                 mooncake.rawPath(),
-                properties -> new Item(properties),
-                properties -> properties.useItemDescriptionPrefix()
+                properties -> new Item(properties)
             ));
         }
     }

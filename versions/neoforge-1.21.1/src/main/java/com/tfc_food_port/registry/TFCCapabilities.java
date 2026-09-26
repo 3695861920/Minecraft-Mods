@@ -9,9 +9,10 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 /**
  * Exposes block entity capabilities.
  *
- * Note that since 1.21.9 NeoForge's fluid capability is the transfer API
- * ({@code Capabilities.Fluid.BLOCK} with a {@code ResourceHandler<FluidResource>}), the old {@code IFluidHandler}
- * capability no longer exists.
+ * On 1.21.1 the fluid capability is {@code Capabilities.FluidHandler.BLOCK}, a
+ * {@code BlockCapability<IFluidHandler, Direction>}. The transfer API that replaced it on 1.21.9 -
+ * {@code Capabilities.Fluid.BLOCK} with a {@code ResourceHandler<FluidResource>} - does not exist on this version,
+ * so this is a real difference between the two targets rather than a rename.
  */
 @EventBusSubscriber(modid = TFCFoodPort.MOD_ID)
 public final class TFCCapabilities
@@ -21,6 +22,6 @@ public final class TFCCapabilities
     @SubscribeEvent
     public static void register(RegisterCapabilitiesEvent event)
     {
-        event.registerBlockEntity(Capabilities.Fluid.BLOCK, TFCBlocks.BARREL_ENTITY.get(), (barrel, side) -> barrel.getTank());
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, TFCBlocks.BARREL_ENTITY.get(), (barrel, side) -> barrel.getTank());
     }
 }

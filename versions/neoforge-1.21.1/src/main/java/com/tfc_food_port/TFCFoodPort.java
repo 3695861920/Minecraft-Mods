@@ -1,15 +1,13 @@
 package com.tfc_food_port;
 
-import com.tfc_food_port.gametest.TFCFoodPortGameTests;
 import com.tfc_food_port.registry.TFCBlocks;
 import com.tfc_food_port.registry.TFCComponents;
 import com.tfc_food_port.registry.TFCCreativeTabs;
 import com.tfc_food_port.registry.TFCItems;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.gametest.GameTestHooks;
 
 /**
  * TFC Food Port - a heavily simplified port of TerraFirmaCraft's food items, crops and barrel.
@@ -31,14 +29,21 @@ public final class TFCFoodPort
         TFCBlocks.BLOCK_ENTITIES.register(modEventBus);
         TFCCreativeTabs.TABS.register(modEventBus);
 
-        if (GameTestHooks.isGametestEnabled())
-        {
-            TFCFoodPortGameTests.register(modEventBus);
-        }
+        // Game tests are NOT registered here yet.
+        //
+        // 1.21.1 discovers them reflectively through @GameTestHolder on the test class rather than through a
+        // registry filled at mod construction time, so there is no call to make. The tests themselves are excluded
+        // from this module's compilation while they are ported; see the exclude in build.gradle.
     }
 
-    public static Identifier id(String path)
+    /**
+     * Namespaced id helper.
+     *
+     * 1.21.1 spells this {@link ResourceLocation}; the class was renamed to {@code Identifier} in a later version,
+     * which is why the two targets differ here.
+     */
+    public static ResourceLocation id(String path)
     {
-        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }

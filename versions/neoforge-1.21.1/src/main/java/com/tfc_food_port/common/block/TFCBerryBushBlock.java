@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.VegetationBlock;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -36,10 +36,11 @@ import net.neoforged.neoforge.common.CommonHooks;
  * It grows on dirt, grass or farmland, needs light, is harvested by right clicking once fully grown (which resets
  * it to a partly grown state so it regrows) and drops itself when broken so it can be replanted.
  *
- * Modelled on Farmer's Delight's {@code BuddingBushBlock} / {@code MushroomColonyBlock}, which are the 26.1.2
- * reference implementations of a {@link VegetationBlock} with a configurable harvest item.
+ * Modelled on the vanilla sweet berry bush, which is the reference implementation of a {@link BushBlock} with a
+ * configurable harvest item. This base class is called VegetationBlock from 1.21.5 onwards, which is why the two
+ * targets name it differently.
  */
-public class TFCBerryBushBlock extends VegetationBlock implements BonemealableBlock
+public class TFCBerryBushBlock extends BushBlock implements BonemealableBlock
 {
     public static final MapCodec<TFCBerryBushBlock> CODEC = RecordCodecBuilder.mapCodec(
         builder -> builder.group(
@@ -106,16 +107,16 @@ public class TFCBerryBushBlock extends VegetationBlock implements BonemealableBl
     }
 
     /**
-     * Buses grow on any vegetation-supporting block: grass, dirt, coarse dirt, podzol, farmland and friends.
+     * Bushes grow on any vegetation-supporting block: grass, dirt, coarse dirt, podzol, farmland and friends.
      *
-     * This uses {@code #minecraft:supports_vegetation} (the vanilla {@link VegetationBlock} default, which is
-     * {@code #minecraft:substrate_overworld} plus farmland) rather than {@code #minecraft:dirt}. The dirt tag only
-     * holds dirt, coarse dirt and rooted dirt, so using it silently made grass blocks unplantable.
+     * 1.21.1 has no {@code #minecraft:supports_vegetation}; that tag, and the {@code VegetationBlock} that uses it,
+     * arrived later. Here the equivalent is {@link BlockTags#DIRT}, which is what this version's own {@code BushBlock}
+     * checks.
      */
     @Override
     protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos)
     {
-        return state.is(BlockTags.SUPPORTS_VEGETATION);
+        return state.is(BlockTags.DIRT);
     }
 
     @Override
@@ -156,11 +157,15 @@ public class TFCBerryBushBlock extends VegetationBlock implements BonemealableBl
         level.playSound(null, pos, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + level.getRandom().nextFloat() * 0.4F);
         // Leave the bush partly grown so it can be picked again later
         level.setBlock(pos, getStateForAge(1), 2);
-        return InteractionResult.SUCCESS_SERVER;
+        // 1.21.1's InteractionResult is an enum without a separate server-side success, so a handled interaction
+        // is SUCCESS. The server-only distinction arrived with the later interaction rework.
+        return InteractionResult.SUCCESS;
     }
 
+    // 1.21.1 takes three arguments here; the trailing "includeData" flag is a later addition. The base method is
+    // public on this version, so the override cannot narrow it to protected.
     @Override
-    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData)
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state)
     {
         return new ItemStack(this);
     }

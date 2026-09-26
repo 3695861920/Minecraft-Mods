@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -72,7 +72,7 @@ public class TFCCropBlock extends CropBlock
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
     {
         if (!crop.isPickable() || getAge(state) < crop.maxAge())
         {
@@ -81,13 +81,14 @@ public class TFCCropBlock extends CropBlock
 
         if (level.isClientSide())
         {
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
 
         // Harvest without destroying the plant, then let it regrow
         Block.popResource(level, pos, new ItemStack(crop.product()));
         level.playSound(null, pos, SoundEvents.CROP_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
         level.setBlock(pos, getStateForAge(crop.regrowAge()), 2);
-        return InteractionResult.SUCCESS_SERVER;
+        // No separate server-side success constant on this version; SUCCESS is the whole story.
+        return ItemInteractionResult.SUCCESS;
     }
 }
