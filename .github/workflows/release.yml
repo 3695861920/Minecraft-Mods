@@ -81,11 +81,18 @@ jobs:
           fi
 
       # build/libs holds the mod jar and the sources jar; a player installs the one without a classifier.
+      #
+      # The path gained a prefix when the repository became multi target: the root project is now an aggregator and
+      # each target is a module under versions/. A release step that still looked in build/libs would find nothing,
+      # and the `test -n "$jar"` below turns that into a failed run rather than a release with no asset.
+      #
+      # When a second target exists this needs a decision about how releases name their assets: one release per
+      # target, or one release carrying every jar. Until then it publishes the single target, newest path first.
       - name: Collect the mod jar
         id: jar
         run: |
           set -euo pipefail
-          jar="$(ls build/libs/*.jar | grep -v -- '-sources' | head -n 1)"
+          jar="$(ls -t versions/*/build/libs/*.jar | grep -v -- '-sources' | head -n 1)"
           test -n "$jar"
           echo "mod jar: $jar"
           echo "path=$jar" >> "$GITHUB_OUTPUT"

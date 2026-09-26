@@ -14,8 +14,12 @@ $root = Split-Path $PSScriptRoot -Parent
 $tfcJarFile = Get-ChildItem (Join-Path $root '*TerraFirmaCraft*.jar') -File -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $tfcJarFile) { throw ('no TerraFirmaCraft jar in ' + $root + ': these generators read TFC textures and data out of it') }
 $jar = $tfcJarFile.FullName
+
+# Resources are written into the selected target's module rather than into the repository root. See tools/targets.ps1.
+. (Join-Path $PSScriptRoot 'targets.ps1')
+$moduleDir = Get-ModuleDir $root
 $root = Split-Path $jar -Parent
-$recipeDir = Join-Path $root 'src\main\resources\data\tfc_food_port\recipe'
+$recipeDir = Join-Path $moduleDir 'src\main\resources\data\tfc_food_port\recipe'
 if (Test-Path $recipeDir) { Remove-Item $recipeDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $recipeDir | Out-Null
 $utf8 = New-Object System.Text.UTF8Encoding($false)
@@ -509,7 +513,7 @@ Write-Recipe 'barrel.json' $barrelRecipe
 
 # ================================================================ common item tags
 # Adding the ported items to NeoForge's common tags lets other mods (including Farmer's Delight itself) use them.
-$tagDir = Join-Path $root 'src\main\resources\data\c\tags\item'
+$tagDir = Join-Path $moduleDir 'src\main\resources\data\c\tags\item'
 function Write-Tag([string]$path, [string[]]$values) {
   # NOTE: the '.json' has to be appended here. Without it every file landed on disk as "foods/dough" with no
   # extension, and Minecraft only loads *.json, so all eight tags were silently empty - which is why
@@ -549,7 +553,7 @@ Write-Tag 'foods/dough/wheat' (FoodIds @('wheat_dough'))
 
 # our own jam tag, so any jam can be used in a jam sandwich (TFC used a "tfc:foods/jam" tag too).
 # The two golden apple jams are listed explicitly: they are jams, but not fruit, so they are not in $jamFruits.
-$ownTagDir = Join-Path $root 'src\main\resources\data\tfc_food_port\tags\item'
+$ownTagDir = Join-Path $moduleDir 'src\main\resources\data\tfc_food_port\tags\item'
 $jamIds = ($jamFruits + @('peanut', 'gold_apple', 'enchanted_gold_apple')) | ForEach-Object { "$ns" + ':food/jam/' + $_ }
 $full = Join-Path $ownTagDir 'jams.json'
 New-Item -ItemType Directory -Force -Path $ownTagDir | Out-Null

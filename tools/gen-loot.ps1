@@ -13,8 +13,12 @@ $root = Split-Path $PSScriptRoot -Parent
 $tfcJarFile = Get-ChildItem (Join-Path $root '*TerraFirmaCraft*.jar') -File -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $tfcJarFile) { throw ('no TerraFirmaCraft jar in ' + $root + ': these generators read TFC textures and data out of it') }
 $jar = $tfcJarFile.FullName
+
+# Resources are written into the selected target's module rather than into the repository root. See tools/targets.ps1.
+. (Join-Path $PSScriptRoot 'targets.ps1')
+$moduleDir = Get-ModuleDir $root
 $root = Split-Path $jar -Parent
-$data = Join-Path $root 'src\main\resources\data\tfc_food_port'
+$data = Join-Path $moduleDir 'src\main\resources\data\tfc_food_port'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
 function New-Dir([string]$path) { if (-not (Test-Path $path)) { New-Item -ItemType Directory -Force -Path $path | Out-Null } }

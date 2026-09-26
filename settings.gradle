@@ -7,3 +7,20 @@ pluginManagement {
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
+
+rootProject.name = 'tfc_food_port'
+
+// Every supported (loader, Minecraft version) combination is its own Gradle subproject under versions/, and each
+// one builds a complete, standalone mod jar.
+//
+// They share the source data, the generators and the input art in tools/, and nothing else. There is deliberately
+// no shared compiled code yet, because in this project the parts that differ between targets are exactly the parts
+// that matter: the registration API, the food component model (one component before 1.21.2 and two after), the fluid
+// capability (IFluidHandler for older NeoForge and for Forge, the transfer API for 26.x, FluidStorage for Fabric),
+// the recipe JSON syntax, and even the key used for load conditions (neoforge:conditions, forge:conditions,
+// fabric:load_conditions). A shared Java module would have to abstract all of that behind interfaces that each have
+// a single implementation, which is a lot of machinery to build before it has earned anything.
+//
+// What genuinely is version independent and therefore worth sharing later is the 428 textures. Duplicating those per
+// module is a repository size problem rather than a correctness one, so it is deferred until a second target exists.
+include 'versions:neoforge-26.1.2'
