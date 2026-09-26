@@ -69,7 +69,10 @@ jobs:
           gradle build --no-daemon --console=plain --stacktrace 2>&1 | tee build.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
-            grep -E 'FAILURE:|error:|Caused by:|What went wrong|Could not|No matching|Permission denied|Unsupported|not found' build.log \
+            # 'not found' is deliberately not in this pattern: the build prints informational lines of its own that
+            # contain it (the absent optional dependency jars), and matching those would publish them as errors and
+            # bury the real cause.
+            grep -E 'FAILURE:|error:|Caused by:|What went wrong|Could not|No matching|Permission denied|command not found|Unsupported' build.log \
               | head -n 25 \
               | while IFS= read -r line; do echo "::error::$line"; done
             echo '--- last 60 lines of the build log ---'
