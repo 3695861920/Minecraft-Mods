@@ -1,0 +1,51 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "tfc_food_port"
+description = '''
+A heavily simplified port of TerraFirmaCraft's food items, crops, bushes and barrel.
+
+Nutrition, decay and water are removed. TFC's custom food-processing blocks (pots, stoves, cheese cloth, brine)
+are replaced by another mod's cooking machines when one is installed, and by vanilla crafting and smelting when
+none is.
+'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neo_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+# Both of these are OPTIONAL. The port ships three versions of every recipe that would otherwise need a cooking
+# machine - one for Farmer's Delight, one for Kaleidoscope Cookery, and one using only vanilla blocks - and each
+# carries a neoforge:conditions block that NeoForge evaluates while the datapack loads. Whichever mods are present
+# decide which of them exist, so the mod works with either, with both, or with neither.
+#
+# They are listed at all so that load order is settled when they are installed: a recipe that names another mod's
+# recipe type has to be read after that mod has registered the type.
+[[dependencies.${mod_id}]]
+modId = "farmersdelight"
+type = "optional"
+versionRange = "[1.3.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "kaleidoscope_cookery"
+type = "optional"
+versionRange = "[1.3.0,)"
+ordering = "AFTER"
+side = "BOTH"

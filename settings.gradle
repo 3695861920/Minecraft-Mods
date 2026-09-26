@@ -24,3 +24,9 @@ rootProject.name = 'tfc_food_port'
 // What genuinely is version independent and therefore worth sharing later is the 428 textures. Duplicating those per
 // module is a repository size problem rather than a correctness one, so it is deferred until a second target exists.
 include 'versions:neoforge-26.1.2'
+
+// versions/neoforge-1.21.1 is NOT included yet, on purpose.
+//
+// The port to 1.21.1 is under way but not finished, and the root project builds every included module. Adding a
+// module that does not compile would turn the release workflow red for the version that IS finished, which is a
+// worse outcome than the missing target. It gets included in the same commit that makes it compile.

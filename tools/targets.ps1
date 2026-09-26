@@ -14,9 +14,12 @@ $ErrorActionPreference = 'Stop'
 
 $TFC_TARGET_MODULES = [ordered]@{
     'neoforge-26.1.2' = 'versions/neoforge-26.1.2'
+    'neoforge-1.21.1' = 'versions/neoforge-1.21.1'
 }
 
-# The default target. Deliberately the newest, because that is what a bare `gen-*.ps1` has always meant.
+# The default target. Deliberately a specific one rather than "the newest", because a bare `gen-*.ps1` should do
+# exactly what it did before this repository became multi target, and changing which module it writes into would be
+# a silent change in behaviour.
 $TFC_DEFAULT_TARGET = 'neoforge-26.1.2'
 
 function Get-TargetName {
