@@ -7,10 +7,21 @@ src/generated/**/*.json text eol=lf
 # ==========================================================================================
 # Line endings
 # ==========================================================================================
-# This project is developed on Windows while the generators write LF, so without these rules git reports every
-# generated file as modified the moment it is touched - the diff is nothing but line endings, which buries the
-# real change. Sources and data are pinned to LF (what the tools write) and the Windows scripts to CRLF (what
-# cmd.exe and PowerShell expect).
+# Sources, data and the tools are pinned to LF, because LF is what must end up inside the built jar.
+#
+# This is not cosmetic. The generators assemble their JSON out of here-strings, and a here-string inherits the line
+# endings of the script that contains it. While these scripts were pinned to CRLF, every generated resource had CRLF
+# in the working tree; git normalised on add so the committed bytes were LF either way, but Gradle copies the
+# WORKING TREE bytes into the jar. A Windows build therefore produced a jar whose 521 JSON entries each differed
+# from the released one by one byte per line - which silently broke the only check this repository has for
+# "did the build change?": comparing the jar fingerprint against the release. It reported a difference every time,
+# and so told us nothing.
+#
+# PowerShell 5.1 parses an LF-only script without complaint. What it does NOT tolerate is a non-ASCII .ps1 written
+# without a BOM, because it then decodes it with the system code page - that is why the tools are pure ASCII, and
+# that rule is unrelated to line endings.
+#
+# cmd.exe and bat/cmd wrappers still want CRLF, so they keep it.
 *.java       text eol=lf
 *.json       text eol=lf
 *.tsv        text eol=lf
@@ -18,7 +29,7 @@ src/generated/**/*.json text eol=lf
 *.properties text eol=lf
 *.md         text eol=lf
 *.yml        text eol=lf
-*.ps1        text eol=crlf
+*.ps1        text eol=lf
 *.cmd        text eol=crlf
 *.bat        text eol=crlf
 

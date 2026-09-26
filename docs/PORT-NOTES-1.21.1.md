@@ -126,35 +126,81 @@ public <B extends Block> DeferredBlock<B> registerBlock(String, Function<BlockBe
 
 ---
 
-## 资源层的差异（工作量比 Java 大）
+## 资源层
 
-| 资源 | 数量 | 1.21.1 要做的事 |
+好消息是**比我原先写的工作量小**。以下每一条都是查出来的，不是推断的。
+
+### 不需要改的
+
+| 资源 | 证据 |
+| :--- | :--- |
+| **配方目录名** | 1.21.1 也是 `data/<ns>/recipe/`（**单数**）。`RecipeManager` 的构造器是 `super(GSON, Registries.elementsDirPath(Registries.RECIPE))`，而 `elementsDirPath` 就是 `location().getPath()`，即 `"recipe"`；`RECIPE = createRegistryKey("recipe")` |
+| **配方类型字符串** | 完全相同。直接读 1.21.1 的 `RecipeSerializer` 注册：`crafting_shaped` / `crafting_shapeless` / `smelting` / `blasting` / `smoking` / `campfire_cooking` / `stonecutting` / `smithing_transform` |
+| **配方结果写法** | 同样是 `{"count": n, "id": "..."}` |
+| **加载条件** | 同样是 `neoforge:conditions` |
+| **标签** | `data/<ns>/tags/item/**` 不变 |
+| **贴图 / 方块模型 / blockstates** | 428 / — / 56，可复用 |
+
+### 必须改的
+
+| 资源 | 数量 | 改法 |
 | :--- | :--- | :--- |
-| `assets/<ns>/items/**` 物品模型定义 | **210** | **全部删除** —— 这一层 1.21.4 才引入；1.21.1 直接从 `models/item/**` 解析 |
-| 配方 JSON | **272** | 材料从字符串退回对象：`{"item": "..."}` / `{"tag": "..."}` |
-| 配方条件 | 152 个带条件 | `neoforge:conditions` 在 1.21.1 **同样是这个键**（NeoForge 自 1.20.2 起沿用），无需改 |
-| `kaleidoscope_cookery` 配方 | 31 | **需要核实森罗物语是否支持 1.21.1**；若不支持应加 `mod_loaded` 之外的版本条件或整段不生成 |
-| 农夫乐事配方字段 | 45 | 1.21.1 的 FD 是 1.2.7，`farmersdelight:cooking` / `cutting` 的字段名需对照其 jar |
-| 贴图 / 方块模型 / blockstates | 428 / — / 56 | ✅ 可复用 |
+| `assets/<ns>/items/**` 物品模型定义 | **210** | **不生成** —— 这一层 1.21.4 才有；`gen-item-definitions.ps1` 在目标没有该能力时直接返回，并清掉可能的残留 |
+| 配方材料 | 272 | 改成对象：`{"item": "..."}` / `{"tag": "..."}` |
 
-### 生成脚本需要的改造
+材料这一条的证据是 `Ingredient.codec()`：1.21.1 是 `Codec.either(Value 列表, 单个 Value)`，而 `Value` 是带 `item` 或 `tag` 键的**对象**。**没有字符串分支** —— 光秃秃的 `"minecraft:melon"` 会被拒绝。这也解释了为什么那个 `#` 前缀在对象式里要变成键名。
 
-`tools/targets.ps1` 已经能按目标选模块，但生成器本身**写死了 26.1.2 的格式**：
+### 生成脚本：改成问能力，而不是问版本号
 
-- `gen-item-definitions.ps1` 要能整体跳过（1.21.1 不需要定义层）
-- `gen-recipes.ps1` 要能输出对象式材料（一个 `Recipe-Ingredient-Format` 开关）
-- `gen-plants.ps1` 的树叶物品定义同理要跳过
-
-建议在 `targets.ps1` 里为每个目标加一行能力表：
+`tools/targets.ps1` 现在带一张能力表，生成脚本问它而不是判断版本：
 
 ```powershell
 $TFC_TARGET_CAPS = @{
-    'neoforge-26.1.2' = @{ itemDefinitions = $true;  ingredientStyle = 'string' }
-    'neoforge-1.21.1' = @{ itemDefinitions = $false; ingredientStyle = 'object' }
+    'neoforge-26.1.2' = @{ itemDefinitions = $true;  ingredientStyle = 'string'; farmModRecipes = $true }
+    'neoforge-1.21.1' = @{ itemDefinitions = $false; ingredientStyle = 'object'; farmModRecipes = $false }
 }
 ```
 
-这样生成脚本问能力，而不是问版本号 —— 加 1.21.4 之类中间版本时不用再改判断逻辑。
+`gen-recipes.ps1` 里的 `Ing()` / `IngList()` 是**唯一**知道两种材料语法存在的地方，所以以后加版本不用动十二个配方构造函数。
+
+### 尚未核实、因此拒绝生成的部分
+
+`farmModRecipes = $false` 表示「这个目标的第三方模组配方格式还没对照过」。
+`Assert-FarmModRecipes` 会**直接报错退出**，而不是写出看似合理、实际加载不了的配方：
+
+- `farmersdelight:cutting` 的 `result: [{"item": {...}}]` 形状
+- `farmersdelight:cooking` 的 `container` 写法
+- `neoforge:compound` 这个材料类型在 NeoForge 21.1 里是否存在
+- `kaleidoscope_cookery:millstone` / `chopping_board` / `pot` 三个格式（还有森罗物语是否支持 1.21.1）
+
+要解锁就是拿到这些模组**对应 1.21.1 的 jar**，照它们的配方文件改，然后把 `farmModRecipes` 置为 `$true`。
+在做完之前，1.21.1 的 `gen-recipes.ps1` 是**跑不完的**，所以 1.21.1 模块的资源还没生成。
+
+**注意**：`gen-recipes.ps1` 会在开头清空整个配方目录，再开始写。也就是说一次失败的运行会留下一个空目录。
+这是原有设计，不是这次引入的，但因为它现在会被守卫主动打断，值得记一笔。
+
+### `check-target-caps.ps1`
+
+新增了一个一秒跑完的检查：能力表里每个目标都有条目、未知目标会被拒绝、两种材料语法各渲染正确、每个渲染结果都能被 `ConvertFrom-Json` 解析。
+理由很实际：配方生成器会一次性重写 272 个文件，而错的语法**产出的是合法 JSON** —— 只是游戏不会加载它。
+在这里一秒发现，比在游戏里花一晚上发现划算。
+
+---
+
+## 一个容易误判的坑：行尾
+
+`core.autocrlf=true`，而生成脚本用 PowerShell 的 here-string 写文件，得到的是 CRLF。
+结果：重新生成之后 `git status` 会把这 29 个文件报告为已修改，**但 `git diff` 是空的**，因为内容其实一样。
+
+判断依据不要用 `git status`，用对象哈希：
+
+```powershell
+git hash-object -- <file>      # 与下面相同 = 内容真的没变
+git rev-parse HEAD:<file>
+```
+
+这次就是靠这个确认「重构没有改变 26.1.2 的产物」。真正被改坏的只有两处，而且是 `git diff` 抓出来的，不是 `git status`：
+FD 的 `container` 被我从 ItemStack 误改成材料，以及月饼生胚配方的缩进丢了。
 
 ---
 
@@ -198,13 +244,11 @@ sourceSets.main.java { exclude 'com/tfc_food_port/gametest/**' }
 
 ## 下一步（按顺序）
 
-1. 改 `Mooncake` 的 5 个 `MobEffects` 常量名
-2. 读 `TFCBlocks` / `TFCItems` 的**完整**编译错误，定性 `registerBlock` / `registerItem` 的第三个参数
-3. 去掉 `TFCLeavesBlock` 构造器的 float
-4. 修 `TFCBerryBushBlock.getCloneItemStack`、`TFCPalmFruitBlock`
-5. 移植 24 个游戏测试并删掉 `build.gradle` 的 exclude
-6. 生成脚本加**能力表**（`itemDefinitions` / `ingredientStyle`），让 1.21.1 不生成 210 个物品定义、配方材料出对象式
-7. 重新 include，本地 **+ CI 双绿**后再提交，然后才推到 GitHub
+1. **拿到农夫乐事与森罗物语对应 1.21.1 的 jar**，对照它们自己的配方文件，把 `farmModRecipes` 置为 `$true`。
+   在此之前 1.21.1 的资源生成跑不完，这是当前最前面的阻塞项。
+2. 给 1.21.1 生成资源（`TFC_TARGET=neoforge-1.21.1` 跑全套生成脚本）
+3. 移植 24 个游戏测试（`@GameTestHolder` + `@GameTest`），并删掉 `build.gradle` 里的 exclude 行
+4. 把 1.21.1 从 `-Penable1211` 转成默认 include，本地 **+ CI 双绿**后再提交、推送
 
 ## 本地环境
 

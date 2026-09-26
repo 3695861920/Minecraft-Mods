@@ -1,4 +1,4 @@
-﻿$jar = (Get-ChildItem 'C:\Users\36958\Documents\AI\*\*TerraFirmaCraft*.jar' -File | Select-Object -First 1).FullName
+$jar = (Get-ChildItem 'C:\Users\36958\Documents\AI\*\*TerraFirmaCraft*.jar' -File | Select-Object -First 1).FullName
 $root = Split-Path $jar -Parent
 $res = Join-Path $root 'src\main\resources'
 $assets = Join-Path $res 'assets\tfc_food_port'

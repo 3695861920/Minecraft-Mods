@@ -1,9 +1,15 @@
 $ErrorActionPreference = 'Stop'
 
-# Generates every recipe for the port in the 26.1.2 format:
-#   - ingredients are plain strings ("minecraft:melon" or "#c:crops/rice")
-#   - results are {"count": n, "id": "..."}
-#   - farmersdelight:cutting results are [{"item": {...}}] and need a knife tool block
+# Generates every recipe for the selected target.
+#
+# What is target independent: the recipe directory name, the recipe type strings, and the result shape.
+#   - the directory is "recipe" on BOTH versions, verified rather than assumed: 1.21.1 builds it from
+#     Registries.elementsDirPath(Registries.RECIPE), which is the registry key's path, i.e. singular.
+#   - the type strings are unchanged too (minecraft:smelting, minecraft:crafting_shapeless, ...), read straight out
+#     of 1.21.1's RecipeSerializer registrations.
+#   - results are {"count": n, "id": "..."} on both.
+#
+# What is NOT: the ingredient syntax. See Ing() below.
 # Pure ASCII script; all identifiers are ASCII.
 
 # Locate the TerraFirmaCraft jar without hardcoding where this machine keeps it. These scripts live in
@@ -18,6 +24,7 @@ $jar = $tfcJarFile.FullName
 # Resources are written into the selected target's module rather than into the repository root. See tools/targets.ps1.
 . (Join-Path $PSScriptRoot 'targets.ps1')
 $moduleDir = Get-ModuleDir $root
+$caps = Get-ModuleCaps
 $root = Split-Path $jar -Parent
 $recipeDir = Join-Path $moduleDir 'src\main\resources\data\tfc_food_port\recipe'
 if (Test-Path $recipeDir) { Remove-Item $recipeDir -Recurse -Force }
@@ -31,9 +38,8 @@ $count = 0
 
 function Write-Recipe([string]$path, [string]$json) {
   $full = Join-Path $script:recipeDir ($path -replace '/', '\')
-  $dir = Split-Path $full -Parent
-  if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
-  [System.IO.File]::WriteAllText($full, $json, $script:utf8)
+  # Write-TextFile normalises to LF and creates the directory. See tools/targets.ps1 for why LF matters.
+  Write-TextFile $full $json
   $script:count++
 }
 
@@ -76,6 +82,40 @@ function Write-Conditional([string]$path, [string]$json, [string]$conditions, [s
 }
 
 # ---------------------------------------------------------------- helpers
+
+# An ingredient reference, rendered in whichever syntax this target reads.
+#
+# A leading '#' means "this is a tag" and is stripped, because the object form spells the two cases with different
+# keys ("tag" versus "item") instead of with a sigil.
+#
+# This is the only place in the generator that knows the two syntaxes exist. Every builder below writes its
+# ingredients through it, so adding a target never means touching twelve recipe builders.
+function Ing([string]$ref) {
+  if ($script:caps.ingredientStyle -eq 'string') { return ('"' + $ref + '"') }
+
+  $key = 'item'
+  $value = $ref
+  if ($ref.StartsWith('#')) { $key = 'tag'; $value = $ref.Substring(1) }
+
+  return ('{ "' + $key + '": "' + $value + '" }')
+}
+
+# The same thing for a JSON array element list, one per line. Every list-taking builder used to repeat the
+# awkward `'    "' + $_ + '"'` join inline; this replaces all of those copies.
+function IngList([string[]]$refs, [string]$indent) {
+  if ([string]::IsNullOrWhiteSpace($indent)) { $indent = '    ' }
+  return (($refs | ForEach-Object { $indent + (Ing $_) }) -join ",`n")
+}
+
+# Recipe formats owned by other mods are only emitted once they have been confirmed against that mod's own jar for
+# this target. Refusing loudly is the point: an unverified field name produces a recipe file that parses as JSON and
+# then silently fails to load, which is far harder to notice than a generator that stops.
+function Assert-FarmModRecipes([string]$what) {
+  if (-not $script:caps.farmModRecipes) {
+    throw ('the ' + $what + ' recipe format has not been verified for target ' + (Get-TargetName) + ". Add the mod's own jar for this version and check its recipe files, then set farmModRecipes = `$true in tools/targets.ps1.")
+  }
+}
+
 $knifeTool = @'
     {
       "neoforge:ingredient_type": "neoforge:compound",
@@ -90,11 +130,12 @@ $knifeTool = @'
 '@
 
 function Cutting([string]$ingredient, [string]$result, [int]$resultCount) {
+  Assert-FarmModRecipes 'farmersdelight:cutting'
   return @"
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    "$ingredient"
+    $(Ing $ingredient)
   ],
   "result": [
     {
@@ -116,7 +157,7 @@ function Smelting([string]$ingredient, [string]$result) {
   "category": "food",
   "cookingtime": 200,
   "experience": 0.35,
-  "ingredient": "$ingredient",
+  "ingredient": $(Ing $ingredient),
   "result": {
     "count": 1,
     "id": "$result"
@@ -132,7 +173,7 @@ function Smoking([string]$ingredient, [string]$result) {
   "category": "food",
   "cookingtime": 100,
   "experience": 0.35,
-  "ingredient": "$ingredient",
+  "ingredient": $(Ing $ingredient),
   "result": {
     "count": 1,
     "id": "$result"
@@ -142,9 +183,13 @@ function Smoking([string]$ingredient, [string]$result) {
 }
 
 function Cooking([string[]]$ingredients, [string]$result, [int]$resultCount, [int]$time, [string]$container) {
-  $list = ($ingredients | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
+  Assert-FarmModRecipes 'farmersdelight:cooking'
+  $list = IngList $ingredients
   $containerBlock = ''
   if ($container -ne '') {
+    # NOTE: this one is a plain ItemStack, NOT an ingredient - it is the bowl the finished soup is served in. It
+    # was briefly changed to an ingredient while making the ingredient syntax target aware, which was wrong: an
+    # ingredient accepts one item and this needs a count. The ItemStack form is what Farmer's Delight reads.
     $containerBlock = "  `"container`": {`n    `"count`": 1,`n    `"id`": `"$container`"`n  },`n"
   }
   return @"
@@ -164,7 +209,7 @@ $list
 }
 
 function Shapeless([string[]]$ingredients, [string]$result, [int]$resultCount) {
-  $list = ($ingredients | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
+  $list = IngList $ingredients
   return @"
 {
   "type": "minecraft:crafting_shapeless",
@@ -181,7 +226,7 @@ $list
 }
 
 function ShapelessGroup([string]$group, [string[]]$ingredients, [string]$result, [int]$resultCount) {
-  $list = ($ingredients | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
+  $list = IngList $ingredients
   return @"
 {
   "type": "minecraft:crafting_shapeless",
@@ -208,10 +253,11 @@ $list
 # `model_id` on the chopping board only picks which in world model is shown while cutting, so it is left out.
 
 function KcMillstone([string]$ingredient, [string]$result, [int]$resultCount) {
+  Assert-FarmModRecipes 'kaleidoscope_cookery:millstone'
   return @"
 {
   "type": "kaleidoscope_cookery:millstone",
-  "ingredient": "$ingredient",
+  "ingredient": $(Ing $ingredient),
   "result": {
     "count": $resultCount,
     "id": "$result"
@@ -221,11 +267,12 @@ function KcMillstone([string]$ingredient, [string]$result, [int]$resultCount) {
 }
 
 function KcChoppingBoard([string]$ingredient, [string]$result, [int]$resultCount, [int]$cutCount) {
+  Assert-FarmModRecipes 'kaleidoscope_cookery:chopping_board'
   return @"
 {
   "type": "kaleidoscope_cookery:chopping_board",
   "cut_count": $cutCount,
-  "ingredient": "$ingredient",
+  "ingredient": $(Ing $ingredient),
   "result": {
     "count": $resultCount,
     "id": "$result"
@@ -235,9 +282,10 @@ function KcChoppingBoard([string]$ingredient, [string]$result, [int]$resultCount
 }
 
 function KcPot([string[]]$ingredients, [string]$result, [int]$resultCount, [string]$carrier) {
-  $list = ($ingredients | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
+  Assert-FarmModRecipes 'kaleidoscope_cookery:pot'
+  $list = IngList $ingredients
   $carrierBlock = ''
-  if ($carrier -ne '') { $carrierBlock = "  `"carrier`": `"$carrier`",`n" }
+  if ($carrier -ne '') { $carrierBlock = "  `"carrier`": $(Ing $carrier),`n" }
   return @"
 {
   "type": "kaleidoscope_cookery:pot",
@@ -451,11 +499,7 @@ function Raw-Mooncake([string]$jam, [string]$raw) {
   "category": "misc",
   "group": "${ns}_raw_mooncake",
   "ingredients": [
-    "$jam",
-    "#c:foods/dough",
-    "#c:foods/dough",
-    "#c:foods/dough",
-    "#c:foods/dough"
+$(IngList @($jam, '#c:foods/dough', '#c:foods/dough', '#c:foods/dough', '#c:foods/dough'))
   ],
   "result": {
     "count": 8,
@@ -492,7 +536,7 @@ $barrelRecipe = @"
   "category": "misc",
   "group": "${ns}_barrel",
   "key": {
-    "S": "#minecraft:slabs"
+    "S": $(Ing '#minecraft:slabs')
   },
   "pattern": [
     "SSS",
@@ -520,11 +564,9 @@ function Write-Tag([string]$path, [string[]]$values) {
   # #c:foods/dough resolved to Farmer's Delight's tag alone and this mod's own dough could not be used in any
   # recipe, and why the port's fruits and vegetables were ignored by its own soup and salad recipes.
   $full = (Join-Path $tagDir ($path -replace '/', '\')) + '.json'
-  $dir = Split-Path $full -Parent
-  if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
   $list = ($values | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
   $json = "{`n  `"values`": [`n$list`n  ]`n}`n"
-  [System.IO.File]::WriteAllText($full, $json, $script:utf8)
+  Write-TextFile $full $json
   $script:count++
 }
 
@@ -556,9 +598,8 @@ Write-Tag 'foods/dough/wheat' (FoodIds @('wheat_dough'))
 $ownTagDir = Join-Path $moduleDir 'src\main\resources\data\tfc_food_port\tags\item'
 $jamIds = ($jamFruits + @('peanut', 'gold_apple', 'enchanted_gold_apple')) | ForEach-Object { "$ns" + ':food/jam/' + $_ }
 $full = Join-Path $ownTagDir 'jams.json'
-New-Item -ItemType Directory -Force -Path $ownTagDir | Out-Null
-$jamList = ($jamIds | ForEach-Object { '    "' + $_ + '"' }) -join ",`n"
-[System.IO.File]::WriteAllText($full, "{`n  `"values`": [`n$jamList`n  ]`n}`n", $utf8)
+$jamList = ($jamIds | ForEach-Object { '    "' + $_ + '"' }) -join "`n"
+Write-TextFile $full ("{`n  `"values`": [`n$jamList`n  ]`n}`n")
 $count++
 
 Write-Output ("recipes written: " + $count)

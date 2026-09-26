@@ -32,8 +32,7 @@ $utf8 = New-Object System.Text.UTF8Encoding($false)
 function New-Dir([string]$p) { if (-not (Test-Path $p)) { New-Item -ItemType Directory -Force -Path $p | Out-Null } }
 function Write-Json([string]$path, [string]$json, [string]$mustContain) {
   if ($mustContain -and $json -notmatch [regex]::Escape($mustContain)) { throw ("generated json lost '$mustContain': " + $json) }
-  New-Dir (Split-Path $path -Parent)
-  [System.IO.File]::WriteAllText($path, $json, $utf8)
+  Write-TextFile $path $json
 }
 
 $bushBerries = @('blackberry', 'raspberry', 'blueberry', 'elderberry', 'gooseberry', 'bunchberry',

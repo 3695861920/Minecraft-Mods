@@ -7,6 +7,16 @@ $ErrorActionPreference = 'Stop'
 # Without (1) every item falls back to the missing model, which is what a client shows as the
 # checkerboard/purple "error" texture.
 #
+# The item model definition layer, assets/<ns>/items/**, exists only from MC 1.21.4 onwards.
+#
+# On a target without it an item resolves its model straight from models/item/**, and these files are simply not
+# read. So the whole script is a no-op there rather than writing 210 files that do nothing - the files would be
+# harmless but they would show up in every asset count and audit as if they mattered.
+#
+# Note that the layer is not merely absent from 1.21.1: the older versions would ALSO reject the model files that
+# point at it. Leaving the model tree to gen-resources.ps1 and this script to the define layer keeps the two from
+# getting tangled.
+#
 # This mirrors the models/item tree into items/, so the two can never drift apart.
 # Pure ASCII script.
 
@@ -21,11 +31,20 @@ if (-not $tfcJarFile) { throw ('no TerraFirmaCraft jar in ' + $root + ': these g
 # Resources are written into the selected target's module rather than into the repository root. See tools/targets.ps1.
 . (Join-Path $PSScriptRoot 'targets.ps1')
 $moduleDir = Get-ModuleDir $root
+$caps = Get-ModuleCaps
 $assets = Join-Path $moduleDir 'src\main\resources\assets\tfc_food_port'
 $modelDir = Join-Path $assets 'models\item'
 $defDir = Join-Path $assets 'items'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $ns = 'tfc_food_port'
+
+if (-not $caps.itemDefinitions) {
+  # Clear a stale layer if this target ever had one, so switching targets cannot leave files behind that the game
+  # ignores but a reader would take for real.
+  if (Test-Path $defDir) { Remove-Item $defDir -Recurse -Force; Write-Output 'removed a stale items/ definition layer' }
+  Write-Output ('target ' + (Get-TargetName) + ' has no item definition layer: nothing to write')
+  return
+}
 
 if (Test-Path $defDir) { Remove-Item $defDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $defDir | Out-Null
@@ -51,9 +70,7 @@ foreach ($m in $models) {
     throw ("generated definition for '$rel' lost its namespace: " + $def)
   }
   $out = Join-Path $defDir ($rel -replace '/', '\')
-  $outDir = Split-Path $out -Parent
-  if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Force -Path $outDir | Out-Null }
-  [System.IO.File]::WriteAllText($out + '.json', $def, $utf8)
+  Write-TextFile ($out + '.json') $def
   $created++
 }
 
